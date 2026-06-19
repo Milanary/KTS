@@ -291,7 +291,8 @@ const COURSE_LESSON_CONTENT = {
   'chcleg003': {
     1: {
       title: 'Aged Care Quality Standards compliance',
-      desc: 'Deep dive into the 8 Aged Care Quality Standards in Australia. Review compliance checks, audit systems, and organizational accountability protocols.'
+      desc: 'Deep dive into the 8 Aged Care Quality Standards in Australia. Review compliance checks, audit systems, and organizational accountability protocols.',
+      videoUrl: 'https://www.youtube.com/watch?v=kG1xVifUMug&list=PLzd-HOFNQhHUZieBuTmgxErJMbSF4fkZ5&index=2'
     },
     2: {
       title: 'Balancing Duty of Care with Dignity of Risk',
@@ -349,6 +350,380 @@ const PARTICIPANTS_LIST = [
   { id: 'boy14', name: 'Yogesh Gurung', avatar: 'YG', isMuted: true }
 ];
 
+// A custom YouTube player with native LMS controls that hide YouTube's default branding
+const YouTubePlayer = ({ videoUrl, title }) => {
+  const [player, setPlayer] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(100);
+  const [isMuted, setIsMuted] = useState(false);
+  const [showControls, setShowControls] = useState(true);
+  const containerRef = useRef(null);
+  const controlsTimeoutRef = useRef(null);
+
+  // Extract YouTube ID
+  const getYouTubeId = (url) => {
+    if (!url) return '';
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : '';
+  };
+
+  const videoId = getYouTubeId(videoUrl);
+  const containerId = `yt-player-${videoId}`;
+
+  useEffect(() => {
+    if (!videoId) return;
+
+    let ytPlayer;
+    let isMounted = true;
+
+    const createPlayer = () => {
+      if (!isMounted) return;
+      
+      const containerEl = document.getElementById(containerId);
+      if (containerEl) {
+        containerEl.innerHTML = '';
+      }
+
+      ytPlayer = new window.YT.Player(containerId, {
+        videoId: videoId,
+        playerVars: {
+          autoplay: 1,
+          controls: 0, // Hide default controls
+          modestbranding: 1, // Hide YouTube logo
+          rel: 0,
+          showinfo: 0,
+          iv_load_policy: 3,
+          disablekb: 1,
+          fs: 0,
+          playsinline: 1
+        },
+        events: {
+          onReady: (event) => {
+            if (!isMounted) return;
+            setPlayer(event.target);
+            setDuration(event.target.getDuration());
+            event.target.playVideo();
+          },
+          onStateChange: (event) => {
+            if (!isMounted) return;
+            if (event.data === window.YT.PlayerState.PLAYING) {
+              setIsPlaying(true);
+            } else {
+              setIsPlaying(false);
+            }
+          }
+        }
+      });
+    };
+
+    if (!window.YT) {
+      if (!document.getElementById('youtube-iframe-api-script')) {
+        const tag = document.createElement('script');
+        tag.id = 'youtube-iframe-api-script';
+        tag.src = 'https://www.youtube.com/iframe_api';
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+      }
+    }
+
+    const checkYT = setInterval(() => {
+      if (window.YT && window.YT.Player) {
+        clearInterval(checkYT);
+        createPlayer();
+      }
+    }, 100);
+
+    return () => {
+      clearInterval(checkYT);
+      isMounted = false;
+      if (ytPlayer && typeof ytPlayer.destroy === 'function') {
+        ytPlayer.destroy();
+      }
+    };
+  }, [videoId]);
+
+  useEffect(() => {
+    if (!player || !isPlaying) return;
+    const interval = setInterval(() => {
+      setCurrentTime(player.getCurrentTime());
+    }, 250);
+    return () => clearInterval(interval);
+  }, [player, isPlaying]);
+
+  const handleMouseMove = () => {
+    setShowControls(true);
+    if (controlsTimeoutRef.current) {
+      clearTimeout(controlsTimeoutRef.current);
+    }
+    controlsTimeoutRef.current = setTimeout(() => {
+      if (isPlaying) {
+        setShowControls(false);
+      }
+    }, 2500);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (controlsTimeoutRef.current) {
+        clearTimeout(controlsTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handlePlayPause = (e) => {
+    e.stopPropagation();
+    if (!player) return;
+    if (isPlaying) {
+      player.pauseVideo();
+    } else {
+      player.playVideo();
+    }
+  };
+
+  const handleSeekChange = (e) => {
+    if (!player) return;
+    const val = parseFloat(e.target.value);
+    player.seekTo(val, true);
+    setCurrentTime(val);
+  };
+
+  const handleVolumeChange = (e) => {
+    if (!player) return;
+    const val = parseInt(e.target.value, 10);
+    setVolume(val);
+    player.setVolume(val);
+    if (val === 0) {
+      player.mute();
+      setIsMuted(true);
+    } else {
+      player.unMute();
+      setIsMuted(false);
+    }
+  };
+
+  const toggleMute = (e) => {
+    e.stopPropagation();
+    if (!player) return;
+    if (isMuted) {
+      player.unMute();
+      player.setVolume(volume);
+      setIsMuted(false);
+    } else {
+      player.mute();
+      setIsMuted(true);
+    }
+  };
+
+  const toggleFullscreen = (e) => {
+    e.stopPropagation();
+    if (!containerRef.current) return;
+    if (!document.fullscreenElement) {
+      containerRef.current.requestFullscreen().catch((err) => {
+        console.error("Fullscreen error:", err);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
+  const formatTime = (time) => {
+    const mins = Math.floor(time / 60);
+    const secs = Math.floor(time % 60);
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
+
+  return (
+    <div 
+      ref={containerRef}
+      className="custom-yt-container"
+      onMouseMove={handleMouseMove}
+      onMouseLeave={() => isPlaying && setShowControls(false)}
+      style={{
+        position: 'relative',
+        width: '100%',
+        height: '100%',
+        backgroundColor: '#000',
+        borderRadius: '16px',
+        overflow: 'hidden',
+        boxShadow: '0 12px 24px rgba(0,0,0,0.3)'
+      }}
+    >
+      <div 
+        className="yt-iframe-clipper"
+        style={{
+          position: 'absolute',
+          top: '-10%',
+          left: 0,
+          width: '100%',
+          height: '120%',
+          pointerEvents: 'none'
+        }}
+      >
+        <div id={containerId} style={{ width: '100%', height: '100%', border: 'none' }}></div>
+      </div>
+
+      <div 
+        onClick={handlePlayPause}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 8,
+          cursor: 'pointer'
+        }}
+      />
+
+      <div 
+        className="custom-yt-controls-bar"
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          background: 'linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.4) 80%, transparent 100%)',
+          padding: '24px 20px 16px 20px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px',
+          transition: 'opacity 0.3s ease, transform 0.3s ease',
+          opacity: showControls ? 1 : 0,
+          transform: showControls ? 'translateY(0)' : 'translateY(8px)',
+          pointerEvents: showControls ? 'auto' : 'none',
+          zIndex: 10
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+          <input 
+            type="range" 
+            min="0" 
+            max={duration || 100} 
+            value={currentTime} 
+            onChange={handleSeekChange}
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: '100%',
+              cursor: 'pointer',
+              height: '5px',
+              borderRadius: '4px',
+              accentColor: 'var(--primary)',
+              background: `linear-gradient(to right, var(--primary) 0%, var(--primary) ${(currentTime / (duration || 1)) * 100}%, rgba(255,255,255,0.2) ${(currentTime / (duration || 1)) * 100}%, rgba(255,255,255,0.2) 100%)`,
+              outline: 'none',
+              appearance: 'none',
+              WebkitAppearance: 'none'
+            }}
+          />
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <button 
+              onClick={handlePlayPause}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#fff',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: 0,
+                transition: 'transform 0.1s'
+              }}
+              onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.92)'}
+              onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              {isPlaying ? (
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                  <path d="M5.5 3.5A1.5 1.5 0 0 1 7 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5zm5 0A1.5 1.5 0 0 1 12 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5z"/>
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                  <path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/>
+                </svg>
+              )}
+            </button>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <button 
+                onClick={toggleMute}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#fff',
+                  cursor: 'pointer',
+                  padding: 0,
+                  display: 'flex',
+                  alignItems: 'center'
+                }}
+              >
+                {isMuted || volume === 0 ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06zm7.137 2.096a.5.5 0 0 1 0 .708L12.207 8l1.647 1.646a.5.5 0 0 1-.708.708L11.5 8.707l-1.646 1.647a.5.5 0 0 1-.708-.708L10.793 8 9.146 6.354a.5.5 0 1 1 .708-.708L11.5 7.293l1.646-1.647a.5.5 0 0 1 .708 0z"/>
+                  </svg>
+                ) : volume < 50 ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M9 4a.5.5 0 0 0-.812-.39L5.825 5.5H3.5A.5.5 0 0 0 3 6v4a.5.5 0 0 0 .5.5h2.325l2.363-1.89a.5.5 0 0 0 .9 12V4zm-1.25 1.71L6.12 7.03a.5.5 0 0 1-.31.17H3.5v1.6h2.31a.5.5 0 0 1 .31.17l1.63 1.32V5.71zm2.496.852a.5.5 0 0 1 .748-.664 4.5 4.5 0 0 1 0 5.204.5.5 0 1 1-.748-.664 3.5 3.5 0 0 0 0-3.876z"/>
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M11.536 14.01A8.473 8.473 0 0 0 14 8c0-2.25-.87-4.3-2.28-5.877a.5.5 0 1 1 .744-.668A9.474 9.474 0 0 1 15 8c0 2.533-.99 4.836-2.585 6.546a.5.5 0 1 1-.779-.628z"/>
+                    <path d="M9.746 11.975A4.97 4.97 0 0 0 11 8c0-1.578-.602-3.019-1.585-4.1a.5.5 0 1 1 .77-.639A5.971 5.971 0 0 1 12 8c0 1.9-.884 3.61-2.29 4.673a.5.5 0 1 1-.617-.788zM6.232 5.5H3.5a.5.5 0 0 0-.5.5v4a.5.5 0 0 0 .5.5h2.732l2.36 1.888A.5.5 0 0 0 9.5 12V4a.5.5 0 0 0-.908-.312L6.232 5.5z"/>
+                  </svg>
+                )}
+              </button>
+
+              <input 
+                type="range" 
+                min="0" 
+                max="100" 
+                value={isMuted ? 0 : volume} 
+                onChange={handleVolumeChange}
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  width: '60px',
+                  cursor: 'pointer',
+                  height: '4px',
+                  borderRadius: '2px',
+                  accentColor: '#fff',
+                  background: 'rgba(255,255,255,0.3)',
+                  outline: 'none'
+                }}
+              />
+            </div>
+
+            <span style={{ fontSize: '12px', color: '#cbd5e1', fontFamily: 'monospace' }}>
+              {formatTime(currentTime)} / {formatTime(duration)}
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <button 
+              onClick={toggleFullscreen}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#fff',
+                cursor: 'pointer',
+                padding: 0,
+                display: 'flex',
+                alignItems: 'center'
+              }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M1.5 1a.5.5 0 0 0-.5.5v4a.5.5 0 0 1-1 0v-4A1.5 1.5 0 0 1 1.5 0h4a.5.5 0 0 1 0 1h-4zM10 .5a.5.5 0 0 1 .5-.5h4A1.5 1.5 0 0 1 16 1.5v4a.5.5 0 0 1-1 0v-4a.5.5 0 0 0-.5-.5h-4a.5.5 0 0 1-.5-.5zM.5 10a.5.5 0 0 1 .5.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 1 0 1h-4A1.5 1.5 0 0 1 0 14.5v-4a.5.5 0 0 1 .5-.5zm15 0a.5.5 0 0 1 .5.5v4a1.5 1.5 0 0 1-1.5 1.5h-4a.5.5 0 0 1 0-1h4a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 1 .5-.5z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function StudentPortal({ onLogout, theme, toggleTheme }) {
   const [activeMenu, setActiveMenu] = useState('dashboard'); // 'dashboard' | 'classroom' | 'schedule' | 'profile'
@@ -1271,13 +1646,17 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
                       {/* Simulated / Real Player View */}
                       {isPlayingClassroomVideo ? (
                         <div className="classroom-video-player active" style={{ padding: 0 }}>
-                          <video 
-                            src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" 
-                            controls 
-                            autoPlay 
-                            className="classroom-html5-video"
-                            style={{ width: '100%', height: '100%', borderRadius: '16px', objectFit: 'cover', display: 'block' }}
-                          />
+                          {activeLesson.videoUrl && (activeLesson.videoUrl.includes('youtube.com') || activeLesson.videoUrl.includes('youtu.be')) ? (
+                            <YouTubePlayer videoUrl={activeLesson.videoUrl} title={activeLesson.title} />
+                          ) : (
+                            <video 
+                              src={activeLesson.videoUrl || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"} 
+                              controls 
+                              autoPlay 
+                              className="classroom-html5-video"
+                              style={{ width: '100%', height: '100%', borderRadius: '16px', objectFit: 'cover', display: 'block' }}
+                            />
+                          )}
                         </div>
                       ) : (
                         <div 
