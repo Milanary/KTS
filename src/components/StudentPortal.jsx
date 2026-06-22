@@ -74,6 +74,14 @@ const ChartIcon = () => (
   </svg>
 );
 
+const AssignmentIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+    <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+    <path d="M9 12h6" /><path d="M9 16h6" />
+  </svg>
+);
+
 const MicIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
@@ -726,7 +734,7 @@ const YouTubePlayer = ({ videoUrl, title }) => {
 };
 
 export default function StudentPortal({ onLogout, theme, toggleTheme }) {
-  const [activeMenu, setActiveMenu] = useState('dashboard'); // 'dashboard' | 'classroom' | 'schedule' | 'profile'
+  const [activeMenu, setActiveMenu] = useState('dashboard'); // 'dashboard' | 'classroom' | 'schedule' | 'profile' | 'assignments'
   const [courses] = useState(() => {
     const savedCourses = localStorage.getItem('kts_courses');
     if (savedCourses) {
@@ -819,6 +827,15 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
   const animationFrameRef = useRef(null);
   const [micVolume, setMicVolume] = useState(0);
 
+  // Assignments States
+  const [assignmentSubmitted, setAssignmentSubmitted] = useState(false);
+  const [submittedFileName, setSubmittedFileName] = useState('');
+  const [submittedAt, setSubmittedAt] = useState('');
+  const [showPdfPreview, setShowPdfPreview] = useState(false);
+  const [selectedAssignmentFile, setSelectedAssignmentFile] = useState(null);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [isSubmittingAssignment, setIsSubmittingAssignment] = useState(false);
+
 
   const startWebcam = async () => {
     setHasMediaError(false);
@@ -866,6 +883,65 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
     }
     if (videoRef.current) {
       videoRef.current.srcObject = null;
+    }
+  };
+
+  // Assignment Upload/Submission Handlers
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0];
+      if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+        setSelectedAssignmentFile(file);
+      } else {
+        alert('Please upload a PDF file only.');
+      }
+    }
+  };
+
+  const handleAssignmentFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+        setSelectedAssignmentFile(file);
+      } else {
+        alert('Please upload a PDF file only.');
+      }
+    }
+  };
+
+  const handleAssignmentSubmit = () => {
+    if (!selectedAssignmentFile) return;
+    setIsSubmittingAssignment(true);
+    
+    // Simulate submission delay
+    setTimeout(() => {
+      const timestamp = new Date().toLocaleString();
+      setAssignmentSubmitted(true);
+      setSubmittedFileName(selectedAssignmentFile.name);
+      setSubmittedAt(timestamp);
+      
+      setSelectedAssignmentFile(null);
+      setIsSubmittingAssignment(false);
+    }, 1200);
+  };
+
+  const handleResetAssignmentSubmission = () => {
+    if (window.confirm('Are you sure you want to re-submit? This will discard your current submission.')) {
+      setAssignmentSubmitted(false);
+      setSubmittedFileName('');
+      setSubmittedAt('');
     }
   };
 
@@ -1357,6 +1433,8 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
         return 'My Classroom';
       case 'schedule':
         return 'Study Schedule';
+      case 'assignments':
+        return 'Course Assignments';
       case 'profile':
         return 'Student Profile';
       default:
@@ -1424,6 +1502,18 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
             >
               <span className="sidebar-link-icon"><CalendarIcon /></span>
               <span>Study Schedule</span>
+            </button>
+
+            <button 
+              type="button" 
+              className={`sidebar-link ${activeMenu === 'assignments' ? 'active' : ''}`}
+              onClick={() => {
+                setActiveMenu('assignments');
+                setSelectedCourse(null);
+              }}
+            >
+              <span className="sidebar-link-icon"><AssignmentIcon /></span>
+              <span>Assignments</span>
             </button>
 
             <button 
@@ -2556,8 +2646,313 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
               </div>
             </section>
           )}
+
+          {/* Tab Content 3.5: Course Assignments */}
+          {activeMenu === 'assignments' && (
+            <section className="assignment-section" style={{ animation: 'fadeIn 0.4s ease' }}>
+              <div className="assignment-card">
+                <div className="assignment-header">
+                  <div>
+                    <span className="course-tag" style={{ background: 'rgba(99, 102, 241, 0.08)', color: 'var(--primary)', padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold' }}>
+                      CHC43015 Core Assignment
+                    </span>
+                    <h2 style={{ fontSize: '22px', fontWeight: '800', margin: '8px 0', color: 'var(--text-primary)' }}>
+                      Assignment Week1: Clinical Competency & Client Care Plan
+                    </h2>
+                    <p style={{ fontSize: '14px', color: 'var(--text-secondary)', maxWidth: '750px', lineHeight: '1.5' }}>
+                      Complete the core competency assessment for Clinical Care and Ageing Support. Review the guidelines and download the PDF. Submit your answers in PDF format below.
+                    </p>
+                  </div>
+                  <div>
+                    {assignmentSubmitted ? (
+                      <span className="assignment-badge submitted">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                        Submitted
+                      </span>
+                    ) : (
+                      <span className="assignment-badge pending">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                          <circle cx="12" cy="12" r="10" />
+                          <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        Pending Submission
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div style={{
+                  display: 'flex',
+                  gap: '24px',
+                  margin: '24px 0',
+                  padding: '16px',
+                  background: 'rgba(0,0,0,0.01)',
+                  border: '1px solid var(--border-card)',
+                  borderRadius: '12px',
+                  flexWrap: 'wrap'
+                }}>
+                  <div className="assignment-meta-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                    <strong>Due Date:</strong> July 24, 2026 at 11:59 PM
+                  </div>
+                  <div className="assignment-meta-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                      <circle cx="12" cy="12" r="10" /><path d="M12 8v4" /><path d="M12 16h.01" />
+                    </svg>
+                    <strong>Total Weight:</strong> 8% of final grade
+                  </div>
+                  <div className="assignment-meta-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
+                    </svg>
+                    <strong>File Name:</strong> Assignment Week1.pdf (98 KB)
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                  <a
+                    href="/Assignment Week1.pdf"
+                    download="Assignment Week1.pdf"
+                    className="btn-primary"
+                    style={{
+                      width: 'auto',
+                      padding: '10px 20px',
+                      borderRadius: '10px',
+                      fontSize: '13.5px',
+                      textDecoration: 'none'
+                    }}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    Download Assignment
+                  </a>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowPdfPreview(true)}
+                    style={{
+                      background: 'rgba(99, 102, 241, 0.08)',
+                      color: 'var(--primary)',
+                      border: '1.5px solid var(--primary)',
+                      borderRadius: '10px',
+                      padding: '10px 20px',
+                      fontSize: '13.5px',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
+                    </svg>
+                    Preview PDF
+                  </button>
+                </div>
+              </div>
+
+              <div className="assignment-card">
+                <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" />
+                  </svg>
+                  Submission Area
+                </h3>
+
+                {assignmentSubmitted ? (
+                  <div style={{
+                    textAlign: 'center',
+                    padding: '32px 16px',
+                    background: 'rgba(16, 185, 129, 0.04)',
+                    border: '1px solid rgba(16, 185, 129, 0.2)',
+                    borderRadius: '16px'
+                  }}>
+                    <div style={{
+                      width: '64px',
+                      height: '64px',
+                      borderRadius: '50%',
+                      background: 'rgba(16, 185, 129, 0.1)',
+                      border: '2px solid rgba(16, 185, 129, 0.2)',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'var(--success)',
+                      fontSize: '28px',
+                      marginBottom: '16px'
+                    }}>
+                      ✓
+                    </div>
+                    <h4 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 6px' }}>
+                      Assignment Submitted Successfully
+                    </h4>
+                    <p style={{ fontSize: '13.5px', color: 'var(--text-secondary)', margin: '0 0 16px' }}>
+                      Submitted file: <strong>{submittedFileName}</strong> ({submittedAt})
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleResetAssignmentSubmission}
+                      style={{
+                        background: 'transparent',
+                        color: 'var(--danger)',
+                        border: '1px solid rgba(239, 68, 68, 0.3)',
+                        borderRadius: '8px',
+                        padding: '8px 16px',
+                        fontSize: '12.5px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.06)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }}
+                    >
+                      Re-submit Assignment
+                    </button>
+                  </div>
+                ) : (
+                  <div>
+                    <p style={{ fontSize: '13.5px', color: 'var(--text-secondary)', marginBottom: '16px' }}>
+                      Upload your answer sheet PDF. Drag and drop your file or click inside the area below to browse.
+                    </p>
+
+                    {/* Drag-and-drop dropzone */}
+                    <div
+                      className={`upload-dropzone ${isDragOver ? 'dragover' : ''}`}
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                      onClick={() => document.getElementById('assignment-file-input').click()}
+                    >
+                      <input
+                        type="file"
+                        id="assignment-file-input"
+                        accept=".pdf"
+                        style={{ display: 'none' }}
+                        onChange={handleAssignmentFileChange}
+                      />
+                      
+                      <div className="upload-icon-wrapper">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="12" y1="18" x2="12" y2="12" /><polyline points="9 15 12 12 15 15" />
+                        </svg>
+                      </div>
+
+                      {selectedAssignmentFile ? (
+                        <div>
+                          <p style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 4px' }}>
+                            {selectedAssignmentFile.name}
+                          </p>
+                          <p style={{ fontSize: '12.5px', color: 'var(--text-muted)', margin: 0 }}>
+                            {(selectedAssignmentFile.size / 1024).toFixed(1)} KB — Ready to Submit
+                          </p>
+                        </div>
+                      ) : (
+                        <div>
+                          <p style={{ fontSize: '14.5px', fontWeight: '600', color: 'var(--text-primary)', margin: '0 0 4px' }}>
+                            Drag & drop your answer PDF here
+                          </p>
+                          <p style={{ fontSize: '12.5px', color: 'var(--text-muted)', margin: 0 }}>
+                            or click to browse files (PDF only, max 10MB)
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {selectedAssignmentFile && (
+                      <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                        <button
+                          type="button"
+                          className="classroom-back-btn"
+                          style={{ cursor: 'pointer' }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedAssignmentFile(null);
+                          }}
+                          disabled={isSubmittingAssignment}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-primary"
+                          style={{
+                            width: 'auto',
+                            padding: '10px 24px',
+                            borderRadius: '10px',
+                            fontSize: '13.5px',
+                            cursor: 'pointer'
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAssignmentSubmit();
+                          }}
+                          disabled={isSubmittingAssignment}
+                        >
+                          {isSubmittingAssignment ? (
+                            <>
+                              <div className="loader-spinner" style={{ width: '14px', height: '14px', borderWidth: '2px', marginRight: '6px' }} />
+                              Submitting...
+                            </>
+                          ) : (
+                            <>Submit Assignment</>
+                          )}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
         </main>
       </div>
+
+      {/* PDF Modal Preview Popup */}
+      {showPdfPreview && (
+        <div className="pdf-modal-overlay" onClick={() => setShowPdfPreview(false)}>
+          <div className="pdf-modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="pdf-modal-header">
+              <h3 className="pdf-modal-title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
+                </svg>
+                <span>Preview: Assignment Week1.pdf</span>
+              </h3>
+              <button
+                type="button"
+                className="pdf-modal-close-btn"
+                onClick={() => setShowPdfPreview(false)}
+                title="Close Preview"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="pdf-modal-body">
+              <iframe
+                src="/Assignment Week1.pdf#toolbar=0"
+                title="Assignment Week1 PDF Preview"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  border: 'none',
+                  display: 'block'
+                }}
+                allow="fullscreen"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
