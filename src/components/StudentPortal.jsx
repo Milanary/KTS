@@ -2466,7 +2466,11 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
                       key={sched.id} 
                       className="schedule-item" 
                       onClick={() => {
-                        if (timeLeft > 0) {
+                        const now = new Date();
+                        const endTime = new Date('2026-06-22T10:10:00+05:45');
+                        if (now >= endTime) {
+                          setMeetingEnded(true);
+                        } else if (timeLeft > 0) {
                           setShowLobby(true);
                         } else {
                           setActiveMeeting(true);
@@ -2474,7 +2478,7 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
                         }
                       }}
                       style={{ cursor: 'pointer', borderLeft: '4px solid var(--primary)' }}
-                      title={timeLeft > 0 ? "Classroom opens at 09:30 AM" : "Click to Join Live Meeting Class"}
+                      title={timeLeft > 0 ? "Classroom opens at 09:30 AM" : new Date() >= new Date('2026-06-22T10:10:00+05:45') ? "Class has ended" : "Click to Join Live Meeting Class"}
                     >
                       <div className="schedule-time-box">
                         <span className="schedule-time-hour">09:30</span>
@@ -2488,6 +2492,11 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
                           <span style={{ fontSize: 11, color: 'var(--warning)', marginTop: 8, fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
                             <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--warning)', display: 'inline-block', animation: 'pulse-warning 1.5s infinite' }}></span>
                             Starts in {getCountdownString()}. Click to enter lobby.
+                          </span>
+                        ) : new Date() >= new Date('2026-06-22T10:10:00+05:45') ? (
+                          <span style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 8, fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--border-card)', display: 'inline-block' }}></span>
+                            Class has concluded. Click to view summary.
                           </span>
                         ) : (
                           <span style={{ fontSize: 11, color: 'var(--primary)', marginTop: 8, fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
