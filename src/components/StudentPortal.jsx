@@ -794,7 +794,7 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
   const [timeLeft, setTimeLeft] = useState(() => {
     const calculateTimeLeft = () => {
       const now = new Date();
-      const target = new Date('2026-06-22T09:30:00+05:45');
+      const target = new Date('2026-06-23T09:30:00+05:45');
       const diff = target - now;
       return diff > 0 ? diff : 0;
     };
@@ -999,7 +999,7 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
   useEffect(() => {
     const calculateTimeLeft = () => {
       const now = new Date();
-      const target = new Date('2026-06-22T09:30:00+05:45');
+      const target = new Date('2026-06-23T09:30:00+05:45');
       const diff = target - now;
       return diff > 0 ? diff : 0;
     };
@@ -1015,10 +1015,10 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
     return () => clearInterval(timer);
   }, []);
 
-  // Auto-end meeting at 10:10 AM Nepal time
+  // Auto-end meeting at 10:06 AM Nepal time
   useEffect(() => {
     if (!activeMeeting) return;
-    const endTime = new Date('2026-06-22T10:10:00+05:45');
+    const endTime = new Date('2026-06-23T10:06:00+05:45');
 
     const checkEnd = setInterval(() => {
       const now = new Date();
@@ -1111,10 +1111,10 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
   // Play live meeting audio broadcast sync with classroom start time
   useEffect(() => {
     if (activeMeeting) {
-      const audio = new Audio('/Tribhuvan%20Rajpath%203.m4a');
+      const audio = new Audio('/Tribhuvan%20Rajpath%205.m4a');
       meetingAudioRef.current = audio;
 
-      const target = new Date('2026-06-22T09:30:00+05:45');
+      const target = new Date('2026-06-23T09:30:00+05:45');
       
       const playAudio = () => {
         const diffSeconds = (new Date() - target) / 1000;
@@ -2017,7 +2017,7 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                             <polyline points="14 2 14 8 20 8"/>
                           </svg>
-                          <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-primary)' }}>CHCCCS011 — Clinical Competency & Field Operations Guide</span>
+                          <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-primary)' }}>Protocol</span>
                           <span style={{ fontSize: '11px', background: 'rgba(99,102,241,0.08)', color: 'var(--primary)', padding: '2px 8px', borderRadius: '10px', fontWeight: '600', marginLeft: 'auto' }}>PDF</span>
                         </div>
 
@@ -2031,8 +2031,8 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
                           background: '#525659'
                         }}>
                           <iframe
-                            src="/CHCCCS011_%20Clinical%20Competency%20&%20Field%20Operations%20Guide.pdf"
-                            title="CHCCCS011 Clinical Competency & Field Operations Guide"
+                            src="/Protocol.pdf"
+                            title="Protocol"
                             style={{
                               width: '100%',
                               height: '100%',
@@ -2324,7 +2324,7 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
                   The <strong>Clinical Competency & Field Operations Guide Class</strong> session with Milan Aryal has concluded.
                 </p>
                 <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '36px' }}>
-                  Session time: <strong>09:30 AM – 10:10 AM (Nepal Time)</strong>
+                  Session time: <strong>09:30 AM – 10:06 AM (Nepal Time)</strong>
                 </p>
                 <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
                   <button
@@ -2557,7 +2557,7 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
                       className="schedule-item" 
                       onClick={() => {
                         const now = new Date();
-                        const endTime = new Date('2026-06-22T10:10:00+05:45');
+                        const endTime = new Date('2026-06-23T10:06:00+05:45');
                         if (now >= endTime) {
                           setMeetingEnded(true);
                         } else if (timeLeft > 0) {
@@ -2568,7 +2568,7 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
                         }
                       }}
                       style={{ cursor: 'pointer', borderLeft: '4px solid var(--primary)' }}
-                      title={timeLeft > 0 ? "Classroom opens at 09:30 AM" : new Date() >= new Date('2026-06-22T10:10:00+05:45') ? "Class has ended" : "Click to Join Live Meeting Class"}
+                      title={timeLeft > 0 ? "Classroom opens at 09:30 AM" : new Date() >= new Date('2026-06-23T10:06:00+05:45') ? "Class has ended" : "Click to Join Live Meeting Class"}
                     >
                       <div className="schedule-time-box">
                         <span className="schedule-time-hour">09:30</span>
@@ -2583,7 +2583,7 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
                             <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--warning)', display: 'inline-block', animation: 'pulse-warning 1.5s infinite' }}></span>
                             Starts in {getCountdownString()}. Click to enter lobby.
                           </span>
-                        ) : new Date() >= new Date('2026-06-22T10:10:00+05:45') ? (
+                        ) : new Date() >= new Date('2026-06-23T10:06:00+05:45') ? (
                           <span style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 8, fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
                             <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--border-card)', display: 'inline-block' }}></span>
                             Class has concluded. Click to view summary.
