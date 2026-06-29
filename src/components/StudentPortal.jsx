@@ -304,7 +304,8 @@ const COURSE_LESSON_CONTENT = {
     },
     2: {
       title: 'Balancing Duty of Care with Dignity of Risk',
-      desc: 'Analyze standard legal conflicts. Learn how to support a client\'s right to choose activities that carry risk while maintaining safe support baselines.'
+      desc: 'Analyze standard legal conflicts. Learn how to support a client\'s right to choose activities that carry risk while maintaining safe support baselines.',
+      videoUrl: 'https://youtu.be/9GyxmkLgdLU?si=yNUrL_531x0sCyNL'
     },
     3: {
       title: 'Mandatory Reporting & Abuse Disclosures',
@@ -757,7 +758,21 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
   const [currentLessonIndex, setCurrentLessonIndex] = useState(1);
   const [progress, setProgress] = useState(() => {
     const savedProgress = localStorage.getItem('kts_student_progress');
-    return savedProgress ? JSON.parse(savedProgress) : {};
+    if (savedProgress) {
+      try {
+        const parsed = JSON.parse(savedProgress);
+        if (parsed['chcleg003-1'] === undefined) {
+          parsed['chcleg003-1'] = true;
+          localStorage.setItem('kts_student_progress', JSON.stringify(parsed));
+        }
+        return parsed;
+      } catch {
+        // Fall through
+      }
+    }
+    const defaultProgress = { 'chcleg003-1': true };
+    localStorage.setItem('kts_student_progress', JSON.stringify(defaultProgress));
+    return defaultProgress;
   });
 
   const saveProgress = (updatedProgress) => {
@@ -828,9 +843,49 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
   const [micVolume, setMicVolume] = useState(0);
 
   // Assignments States
-  const [assignmentSubmitted, setAssignmentSubmitted] = useState(false);
-  const [submittedFileName, setSubmittedFileName] = useState('');
-  const [submittedAt, setSubmittedAt] = useState('');
+  const [assignmentSubmitted, setAssignmentSubmitted] = useState(() => {
+    const saved = localStorage.getItem('kts_assignment_submitted');
+    // Force reset previously saved 'true' values to false
+    if (saved === null || saved === 'true') {
+      localStorage.setItem('kts_assignment_submitted', 'false');
+      return false;
+    }
+    return JSON.parse(saved);
+  });
+  const [submittedFileName, setSubmittedFileName] = useState(() => {
+    const saved = localStorage.getItem('kts_submitted_file_name');
+    if (saved === 'Assignment_Week2_Submission.pdf' || saved === 'Assignment Week1.pdf') {
+      localStorage.removeItem('kts_submitted_file_name');
+      return '';
+    }
+    return saved || '';
+  });
+  const [submittedAt, setSubmittedAt] = useState(() => {
+    const saved = localStorage.getItem('kts_submitted_at');
+    if (saved === 'June 28, 2026 at 02:15 PM') {
+      localStorage.removeItem('kts_submitted_at');
+      return '';
+    }
+    return saved || '';
+  });
+  const [assignmentScore, setAssignmentScore] = useState(() => {
+    const saved = localStorage.getItem('kts_assignment_score');
+    const defaultScore = '7.0';
+    if (saved === 'null' || saved === null) {
+      localStorage.setItem('kts_assignment_score', defaultScore);
+      return defaultScore;
+    }
+    return saved;
+  });
+  const [assignmentComment, setAssignmentComment] = useState(() => {
+    const saved = localStorage.getItem('kts_assignment_comment');
+    const defaultComment = "The submission is somewhat generic and lacks in-depth research. It would be improved by identifying and addressing the specific client pain points in detail rather than speaking in general terms.";
+    if (saved === 'null' || saved === null) {
+      localStorage.setItem('kts_assignment_comment', defaultComment);
+      return defaultComment;
+    }
+    return saved;
+  });
   const [showPdfPreview, setShowPdfPreview] = useState(false);
   const [selectedAssignmentFile, setSelectedAssignmentFile] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -931,6 +986,14 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
       setAssignmentSubmitted(true);
       setSubmittedFileName(selectedAssignmentFile.name);
       setSubmittedAt(timestamp);
+      setAssignmentScore(null);
+      setAssignmentComment(null);
+
+      localStorage.setItem('kts_assignment_submitted', 'true');
+      localStorage.setItem('kts_submitted_file_name', selectedAssignmentFile.name);
+      localStorage.setItem('kts_submitted_at', timestamp);
+      localStorage.setItem('kts_assignment_score', 'null');
+      localStorage.setItem('kts_assignment_comment', 'null');
       
       setSelectedAssignmentFile(null);
       setIsSubmittingAssignment(false);
@@ -942,6 +1005,14 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
       setAssignmentSubmitted(false);
       setSubmittedFileName('');
       setSubmittedAt('');
+      setAssignmentScore(null);
+      setAssignmentComment(null);
+
+      localStorage.setItem('kts_assignment_submitted', 'false');
+      localStorage.setItem('kts_submitted_file_name', '');
+      localStorage.setItem('kts_submitted_at', '');
+      localStorage.setItem('kts_assignment_score', 'null');
+      localStorage.setItem('kts_assignment_comment', 'null');
     }
   };
 
@@ -2657,7 +2728,7 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
                       CHC43015 Core Assignment
                     </span>
                     <h2 style={{ fontSize: '22px', fontWeight: '800', margin: '8px 0', color: 'var(--text-primary)' }}>
-                      Assignment Week1: Clinical Competency & Client Care Plan
+                      Assignment Week2: Balancing Duty of Care with Dignity of Risk
                     </h2>
                     <p style={{ fontSize: '14px', color: 'var(--text-secondary)', maxWidth: '750px', lineHeight: '1.5' }}>
                       Complete the core competency assessment for Clinical Care and Ageing Support. Review the guidelines and download the PDF. Submit your answers in PDF format below.
@@ -2665,12 +2736,21 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
                   </div>
                   <div>
                     {assignmentSubmitted ? (
-                      <span className="assignment-badge submitted">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
-                          <polyline points="20 6 9 17 4 12" />
-                        </svg>
-                        Submitted
-                      </span>
+                      assignmentScore ? (
+                        <span className="assignment-badge completed" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                          Completed & Graded
+                        </span>
+                      ) : (
+                        <span className="assignment-badge submitted">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                          Submitted
+                        </span>
+                      )
                     ) : (
                       <span className="assignment-badge pending">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
@@ -2697,7 +2777,7 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
                       <rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
                     </svg>
-                    <strong>Due Date:</strong> July 24, 2026 at 11:59 PM
+                    <strong>Due Date:</strong> June 30, 2026 at 11:59 PM
                   </div>
                   <div className="assignment-meta-item">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
@@ -2709,14 +2789,14 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
                       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
                     </svg>
-                    <strong>File Name:</strong> Assignment Week1.pdf (98 KB)
+                    <strong>File Name:</strong> Assignment Week2.pdf (201 KB)
                   </div>
                 </div>
 
                 <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                   <a
-                    href="/Assignment Week1.pdf"
-                    download="Assignment Week1.pdf"
+                    href="/Assignment Week2.pdf"
+                    download="Assignment Week2.pdf"
                     className="btn-primary"
                     style={{
                       width: 'auto',
@@ -2766,6 +2846,76 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
                   Submission Area
                 </h3>
 
+                {assignmentScore && (
+                  <div style={{
+                    padding: '24px',
+                    background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.03) 0%, rgba(168, 85, 247, 0.02) 100%)',
+                    border: '1px solid var(--border-card)',
+                    borderRadius: '16px',
+                    textAlign: 'left',
+                    marginBottom: '20px'
+                  }}>
+                    <h4 style={{ fontSize: '15px', fontWeight: '750', color: 'var(--text-primary)', margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
+                      </svg>
+                      Evaluation & Feedback: Assignment Week2: Balancing Duty of Care with Dignity of Risk
+                    </h4>
+                    
+                    <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                      <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        background: 'rgba(99, 102, 241, 0.06)',
+                        border: '1px solid rgba(99, 102, 241, 0.15)',
+                        borderRadius: '12px',
+                        padding: '16px 20px',
+                        minWidth: '110px',
+                        textAlign: 'center'
+                      }}>
+                        <span style={{ fontSize: '11px', fontWeight: '800', color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Grade</span>
+                        <span style={{ fontSize: '28px', fontWeight: '900', color: 'var(--text-primary)', margin: '4px 0' }}>{assignmentScore}</span>
+                        <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>out of 10.0</span>
+                        <span style={{
+                          marginTop: '8px',
+                          padding: '2px 8px',
+                          background: 'rgba(16, 185, 129, 0.1)',
+                          color: 'var(--success)',
+                          border: '1px solid rgba(16, 185, 129, 0.2)',
+                          borderRadius: '4px',
+                          fontSize: '10px',
+                          fontWeight: '800',
+                          textTransform: 'uppercase'
+                        }}>
+                          Passed
+                        </span>
+                      </div>
+
+                      <div style={{ flex: 1, minWidth: '250px' }}>
+                        <div style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '6px' }}>
+                          Feedback comments:
+                        </div>
+                        <blockquote style={{
+                          margin: 0,
+                          padding: '12px 16px',
+                          background: 'var(--input-bg)',
+                          borderLeft: '4px solid var(--primary)',
+                          borderRadius: '0 8px 8px 0',
+                          fontSize: '13.5px',
+                          color: 'var(--text-primary)',
+                          lineHeight: '1.5',
+                          fontStyle: 'italic'
+                        }}>
+                          "{assignmentComment}"
+                        </blockquote>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {assignmentSubmitted ? (
                   <div style={{
                     textAlign: 'center',
@@ -2790,7 +2940,7 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
                       ✓
                     </div>
                     <h4 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 6px' }}>
-                      Assignment Submitted Successfully
+                      {assignmentScore ? "Assignment Evaluated" : "Assignment Submitted Successfully"}
                     </h4>
                     <p style={{ fontSize: '13.5px', color: 'var(--text-secondary)', margin: '0 0 16px' }}>
                       Submitted file: <strong>{submittedFileName}</strong> ({submittedAt})
@@ -2926,7 +3076,7 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
                 </svg>
-                <span>Preview: Assignment Week1.pdf</span>
+                <span>Preview: Assignment Week2.pdf</span>
               </h3>
               <button
                 type="button"
@@ -2939,8 +3089,8 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
             </div>
             <div className="pdf-modal-body">
               <iframe
-                src="/Assignment Week1.pdf#toolbar=0"
-                title="Assignment Week1 PDF Preview"
+                src="/Assignment Week2.pdf#toolbar=0"
+                title="Assignment Week2 PDF Preview"
                 style={{
                   width: '100%',
                   height: '100%',
