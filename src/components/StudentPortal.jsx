@@ -352,7 +352,7 @@ const DEFAULT_ASSIGNMENTS = [
     fileName: 'Assignment Week1.pdf',
     downloadUrl: '/Assignment Week1.pdf',
     grades: [
-      { section: 'Empowerment Principles', score: '9.0', feedback: 'Excellent work. Your case studies demonstrated a profound understanding of client advocacy.' }
+      { section: 'Rights & Regulation', score: '7.0', feedback: 'The submission is somewhat generic and lacks in-depth research. It would be improved by identifying and addressing the specific client pain points in detail rather than speaking in general terms.' }
     ]
   },
   {
@@ -363,7 +363,6 @@ const DEFAULT_ASSIGNMENTS = [
     fileName: 'Assignment Week2.pdf',
     downloadUrl: '/Assignment Week2.pdf',
     grades: [
-      { section: 'Rights & Regulation', score: '7.0', feedback: 'The submission is somewhat generic and lacks in-depth research. It would be improved by identifying and addressing the specific client pain points in detail rather than speaking in general terms.' },
       { section: 'Dispute Resolution', score: '5.5', feedback: 'The submitted analysis for the practical case studies clearly indicates an extensive reliance on AI-generated content rather than genuine human effort and personal reasoning. Please do not repeat this approach in future submissions, as continued use of automated text will not be tolerated.' }
     ]
   },
@@ -907,19 +906,27 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
 
   // Assignments States
   const [submissions, setSubmissions] = useState(() => {
-    const saved = localStorage.getItem('kts_assignments_submissions');
+    let saved = localStorage.getItem('kts_assignments_submissions');
     if (saved) {
-      try { return JSON.parse(saved); } catch { }
+      try {
+        const parsed = JSON.parse(saved);
+        if (
+          parsed.week1?.grades?.[0]?.section === 'Empowerment Principles' || 
+          (parsed.week2?.grades && parsed.week2.grades.length > 1)
+        ) {
+          saved = null;
+        } else {
+          return parsed;
+        }
+      } catch {
+        saved = null;
+      }
     }
     
     // Check old keys for migration
     const oldSubmitted = localStorage.getItem('kts_assignment_submitted') === 'true';
     const oldFileName = localStorage.getItem('kts_submitted_file_name') || 'Assignment_Week2_Submission.pdf';
-    const oldSubmittedAt = localStorage.getItem('kts_submitted_at') || 'June 28, 2026 at 02:15 PM';
-    const oldScore = localStorage.getItem('kts_assignment_score') || '7.0';
-    const oldComment = localStorage.getItem('kts_assignment_comment') || 'The submission is somewhat generic and lacks in-depth research. It would be improved by identifying and addressing the specific client pain points in detail rather than speaking in general terms.';
-    const oldSec2Score = localStorage.getItem('kts_assignment_sec2_score') || '5.5';
-    const oldSec2Comment = localStorage.getItem('kts_assignment_sec2_comment') || 'The submitted analysis for the practical case studies clearly indicates an extensive reliance on AI-generated content rather than genuine human effort and personal reasoning. Please do not repeat this approach in future submissions, as continued use of automated text will not be tolerated.';
+    const oldSubmittedAt = localStorage.getItem('kts_submitted_at') || 'June 25, 2026 at 03:45 PM';
     
     const defaultSubmissions = {
       'week1': {
@@ -927,16 +934,15 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
         fileName: 'Assignment_Week1_Bhishan.pdf',
         submittedAt: 'June 18, 2026 at 04:30 PM',
         grades: [
-          { section: 'Empowerment Principles', score: '9.0', feedback: 'Excellent work. Your case studies demonstrated a profound understanding of client advocacy.' }
+          { section: 'Rights & Regulation', score: '7.0', feedback: 'The submission is somewhat generic and lacks in-depth research. It would be improved by identifying and addressing the specific client pain points in detail rather than speaking in general terms.' }
         ]
       },
       'week2': {
-        submitted: oldSubmitted,
+        submitted: oldSubmitted || true,
         fileName: oldFileName,
         submittedAt: oldSubmittedAt,
         grades: [
-          { section: 'Rights & Regulation', score: oldScore, feedback: oldComment },
-          { section: 'Dispute Resolution', score: oldSec2Score, feedback: oldSec2Comment }
+          { section: 'Dispute Resolution', score: '5.5', feedback: 'The submitted analysis for the practical case studies clearly indicates an extensive reliance on AI-generated content rather than genuine human effort and personal reasoning. Please do not repeat this approach in future submissions, as continued use of automated text will not be tolerated.' }
         ]
       },
       'week2.1': {
@@ -2799,348 +2805,351 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
             const isGraded = activeAssignment.grades && activeAssignment.grades.length > 0;
             return (
               <section className="assignment-section" style={{ animation: 'fadeIn 0.4s ease' }}>
-                <div className="classroom-container" style={{ marginTop: 0 }}>
-                  
-                  {/* Left Sidebar for Assignments */}
-                  <div className="classroom-sidebar" style={{ borderRight: '1px solid var(--border-card)', paddingRight: '16px' }}>
-                    <span className="sidebar-title">
-                      <AssignmentIcon />
-                      <span>Assignments</span>
-                    </span>
-                    
-                    <div className="lessons-list">
-                      {DEFAULT_ASSIGNMENTS.map((assignment) => {
-                        const sub = submissions[assignment.id] || { submitted: false };
-                        const hasGrades = assignment.grades && assignment.grades.length > 0;
-                        const isSel = selectedAssignmentId === assignment.id;
-                        return (
-                          <div
-                            key={assignment.id}
-                            className={`lesson-item ${isSel ? 'active' : ''}`}
-                            onClick={() => {
-                              setSelectedAssignmentId(assignment.id);
-                              setSelectedAssignmentFile(null);
-                            }}
-                          >
-                            <div className="lesson-info">
-                              <span className="lesson-num" style={{ 
-                                fontSize: '10px', 
-                                background: hasGrades ? 'rgba(16, 185, 129, 0.08)' : (sub.submitted ? 'rgba(99, 102, 241, 0.08)' : 'var(--input-focus)'),
-                                color: hasGrades ? 'var(--success)' : (sub.submitted ? 'var(--primary)' : 'var(--text-muted)')
-                              }}>
-                                {assignment.id.replace('week', 'W')}
-                              </span>
-                              <span className="lesson-title-text" style={{ fontSize: '13px' }}>
-                                {assignment.title.split(':')[0]}
-                              </span>
-                            </div>
-                            <span style={{ 
-                              fontSize: '11px', 
-                              fontWeight: '800', 
-                              color: hasGrades ? 'var(--success)' : (sub.submitted ? 'var(--primary)' : 'var(--warning)'),
-                              textTransform: 'uppercase',
-                              letterSpacing: '0.5px'
-                            }}>
-                              {hasGrades ? 'Graded' : (sub.submitted ? 'Submitted' : 'Pending')}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
+                
+                {/* Assignment Selector Tabs at the top */}
+                <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', overflowX: 'auto', paddingBottom: '4px' }}>
+                  {DEFAULT_ASSIGNMENTS.map((assignment) => {
+                    const isSel = selectedAssignmentId === assignment.id;
+                    const sub = submissions[assignment.id] || { submitted: false };
+                    const hasGrades = assignment.grades && assignment.grades.length > 0;
+                    return (
+                      <button
+                        key={assignment.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedAssignmentId(assignment.id);
+                          setSelectedAssignmentFile(null);
+                        }}
+                        style={{
+                          padding: '10px 18px',
+                          borderRadius: '12px',
+                          border: '1px solid var(--border-card)',
+                          backgroundColor: isSel ? 'rgba(99, 102, 241, 0.08)' : 'var(--input-bg)',
+                          color: isSel ? 'var(--primary)' : 'var(--text-secondary)',
+                          fontSize: '13px',
+                          fontWeight: '700',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          whiteSpace: 'nowrap',
+                          borderColor: isSel ? 'var(--primary)' : 'var(--border-card)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px'
+                        }}
+                      >
+                        {assignment.id === 'week2.1' ? 'Assignment Week 2.1' : (assignment.id === 'week2' ? 'Assignment Week 2' : 'Assignment Week 1')}
+                        <span style={{ 
+                          fontSize: '10px', 
+                          padding: '2px 6px', 
+                          borderRadius: '4px',
+                          background: hasGrades ? 'rgba(16, 185, 129, 0.1)' : (sub.submitted ? 'rgba(99, 102, 241, 0.1)' : 'rgba(245, 158, 11, 0.1)'),
+                          color: hasGrades ? 'var(--success)' : (sub.submitted ? 'var(--primary)' : 'var(--warning)'),
+                          fontWeight: '800'
+                        }}>
+                          {hasGrades ? 'Graded' : (sub.submitted ? 'Submitted' : 'Pending')}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
 
-                  {/* Main Assignment Detail Panel */}
-                  <div className="classroom-viewer" style={{ padding: '0 0 0 24px' }}>
+                {/* Assignment detail (exactly the same single-column layout as previously) */}
+                <div className="assignment-card">
+                  <div className="assignment-header">
                     <div>
-                      {/* Assignment Header Card */}
-                      <div className="assignment-card" style={{
-                        background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(168, 85, 247, 0.03) 100%)',
-                        border: '1px solid var(--border-card)',
-                        borderRadius: '16px',
-                        padding: '24px',
-                        marginBottom: '24px'
-                      }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-                          <div style={{ flex: 1, minWidth: '280px' }}>
-                            <span className="course-tag" style={{ background: 'rgba(99, 102, 241, 0.08)', color: 'var(--primary)', padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold' }}>
-                              CHC43015 Core Assignment Evaluation
-                            </span>
-                            <h2 style={{ fontSize: '20px', fontWeight: '800', margin: '8px 0 4px', color: 'var(--text-primary)' }}>
-                              {activeAssignment.title}
-                            </h2>
-                            <p style={{ fontSize: '13.5px', color: 'var(--text-secondary)', margin: 0 }}>
-                              <strong>Due Date:</strong> {activeAssignment.dueDate}
-                            </p>
-                          </div>
-                          <div>
-                            <span className={`assignment-badge ${isGraded ? 'completed' : (activeSubmission.submitted ? 'submitted' : 'pending')}`} style={{
-                              background: isGraded ? 'rgba(16, 185, 129, 0.08)' : (activeSubmission.submitted ? 'rgba(99, 102, 241, 0.08)' : 'rgba(245, 158, 11, 0.08)'),
-                              color: isGraded ? 'var(--success)' : (activeSubmission.submitted ? 'var(--primary)' : 'var(--warning)'),
-                              border: '1px solid currentColor'
-                            }}>
-                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: '6px' }}>
-                                {isGraded ? (
-                                  <>
-                                    <circle cx="12" cy="12" r="10" /><polyline points="12 8 12 12 14 14" />
-                                  </>
-                                ) : (
-                                  <>
-                                    <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
-                                  </>
-                                )}
-                              </svg>
-                              {isGraded ? 'Grading Evaluated' : (activeSubmission.submitted ? 'Submission Received' : 'Action Required')}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Download & Preview Actions Card */}
-                      <div className="section-card" style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-                        <div>
-                          <h4 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 4px' }}>Assignment Guidelines</h4>
-                          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>Review criteria and clinical case studies before writing your submission.</p>
-                        </div>
-                        <div style={{ display: 'flex', gap: '10px' }}>
-                          <button
-                            type="button"
-                            className="classroom-back-btn"
-                            onClick={() => setShowPdfPreview(true)}
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: '4px' }}>
-                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
+                      <span className="course-tag" style={{ background: 'rgba(99, 102, 241, 0.08)', color: 'var(--primary)', padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold' }}>
+                        CHC43015 Core Assignment
+                      </span>
+                      <h2 style={{ fontSize: '22px', fontWeight: '800', margin: '8px 0', color: 'var(--text-primary)' }}>
+                        {activeAssignment.title}
+                      </h2>
+                      <p style={{ fontSize: '14px', color: 'var(--text-secondary)', maxWidth: '750px', lineHeight: '1.5' }}>
+                        Complete the core competency assessment. Review guidelines and download the PDF. Submit your answers in PDF format below.
+                      </p>
+                    </div>
+                    <div>
+                      {activeSubmission.submitted ? (
+                        isGraded ? (
+                          <span className="assignment-badge completed" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                              <polyline points="20 6 9 17 4 12" />
                             </svg>
-                            Preview PDF
-                          </button>
-                          <a
-                            href={activeAssignment.downloadUrl}
-                            download={activeAssignment.fileName}
-                            className="btn-primary"
-                            style={{ 
-                              width: 'auto', 
-                              padding: '8px 16px', 
-                              borderRadius: 10, 
-                              fontSize: 13, 
-                              textDecoration: 'none', 
-                              display: 'inline-flex', 
-                              alignItems: 'center', 
-                              justifyContent: 'center',
-                              fontWeight: '600'
-                            }}
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: '6px' }}>
-                              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" x2="12" y1="15" y2="3" />
+                            Completed & Graded
+                          </span>
+                        ) : (
+                          <span className="assignment-badge submitted">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                              <polyline points="20 6 9 17 4 12" />
                             </svg>
-                            Download Guide
-                          </a>
-                        </div>
-                      </div>
-
-                      {/* Content Panels: Submission or Grading */}
-                      {isGraded ? (
-                        /* Graded Feedback Sections */
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                          {(activeAssignment.grades || activeSubmission.grades || []).map((grade, idx) => (
-                            <div className="assignment-card" key={idx} style={{ margin: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                              <div>
-                                <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                    {idx === 0 ? (
-                                      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-                                    ) : (
-                                      <polygon points="12 2 2 7 12 12 22 7 12 2" />
-                                    )}
-                                    {idx === 0 ? (
-                                      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-                                    ) : (
-                                      <>
-                                        <polyline points="2 17 12 22 22 17" />
-                                        <polyline points="2 12 12 17 22 12" />
-                                      </>
-                                    )}
-                                  </svg>
-                                  {grade.section}
-                                </h3>
-                                
-                                <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start', marginBottom: '16px', flexWrap: 'wrap' }}>
-                                  <div style={{
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    background: 'rgba(99, 102, 241, 0.06)',
-                                    border: '1px solid rgba(99, 102, 241, 0.15)',
-                                    borderRadius: '12px',
-                                    padding: '12px 16px',
-                                    minWidth: '100px',
-                                    textAlign: 'center'
-                                  }}>
-                                    <span style={{ fontSize: '10px', fontWeight: '800', color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Grade</span>
-                                    <span style={{ fontSize: '24px', fontWeight: '900', color: 'var(--text-primary)', margin: '2px 0' }}>{grade.score}</span>
-                                    <span style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>out of 10.0</span>
-                                  </div>
-
-                                  <div style={{ flex: 1, minWidth: '240px' }}>
-                                    <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                                      Assessor Feedback:
-                                    </div>
-                                    <blockquote style={{
-                                      margin: 0,
-                                      padding: '10px 14px',
-                                      background: 'var(--input-bg)',
-                                      borderLeft: `4px solid ${parseFloat(grade.score) >= 7 ? 'var(--primary)' : '#f59e0b'}`,
-                                      borderRadius: '0 8px 8px 0',
-                                      fontSize: '13px',
-                                      color: 'var(--text-primary)',
-                                      lineHeight: '1.4',
-                                      fontStyle: 'italic'
-                                    }}>
-                                      "{grade.feedback}"
-                                    </blockquote>
-                                  </div>
-                                </div>
-                              </div>
-                              <div style={{ borderTop: '1px dashed var(--border-card)', paddingTop: '12px', marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Evaluated by: <strong>Sheren Molt</strong></span>
-                                <span className="assignment-badge" style={{
-                                  fontSize: '11px',
-                                  fontWeight: '800',
-                                  background: parseFloat(grade.score) >= 7 ? 'rgba(16,185,129,0.08)' : 'rgba(245,158,11,0.08)',
-                                  color: parseFloat(grade.score) >= 7 ? 'var(--success)' : '#d97706',
-                                  padding: '2px 8px',
-                                  borderRadius: '4px',
-                                  border: '1px solid currentColor'
-                                }}>
-                                  {parseFloat(grade.score) >= 7 ? 'Passed' : 'Passed with Warning'}
-                                </span>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
+                            Submitted
+                          </span>
+                        )
                       ) : (
-                        /* Submission Action Portal */
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                          {activeSubmission.submitted ? (
-                            /* Submitted Success Card */
-                            <div className="assignment-card" style={{ margin: 0, border: '1px solid var(--success-border)', background: 'rgba(16, 185, 129, 0.02)' }}>
-                              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', flexWrap: 'wrap' }}>
-                                <div style={{ 
-                                  width: '48px', 
-                                  height: '48px', 
-                                  borderRadius: '50%', 
-                                  backgroundColor: 'rgba(16, 185, 129, 0.1)', 
-                                  color: 'var(--success)', 
-                                  display: 'flex', 
-                                  alignItems: 'center', 
-                                  justifyContent: 'center',
-                                  fontSize: '20px'
-                                }}>
-                                  ✓
-                                </div>
-                                <div style={{ flex: 1, minWidth: '240px' }}>
-                                  <h3 style={{ fontSize: '16px', fontWeight: '800', color: 'var(--text-primary)', margin: '0 0 4px' }}>
-                                    Assignment Submission Received
-                                  </h3>
-                                  <p style={{ fontSize: '13.5px', color: 'var(--text-secondary)', margin: '0 0 12px' }}>
-                                    Your response PDF has been uploaded and queued for clinical grading.
-                                  </p>
-                                  <div style={{ background: 'var(--input-bg)', padding: '12px 16px', borderRadius: '10px', border: '1px solid var(--border-card)' }}>
-                                    <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2.5">
-                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
-                                      </svg>
-                                      {activeSubmission.fileName}
-                                    </div>
-                                    <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                                      Uploaded at: {activeSubmission.submittedAt}
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                              
-                              <div style={{ borderTop: '1px dashed var(--border-card)', paddingTop: '16px', marginTop: '16px', display: 'flex', justifyContent: 'flex-end' }}>
-                                <button 
-                                  type="button" 
-                                  className="classroom-back-btn"
-                                  onClick={() => handleResetAssignmentSubmission(activeAssignment.id)}
-                                >
-                                  Submit a Different File
-                                </button>
-                              </div>
-                            </div>
-                          ) : (
-                            /* File Upload Portal */
-                            <div>
-                              <div 
-                                className={`upload-dropzone ${isDragOver ? 'dragover' : ''}`}
-                                onDragOver={handleDragOver}
-                                onDragLeave={handleDragLeave}
-                                onDrop={handleDrop}
-                                onClick={() => document.getElementById('assignment-file-input').click()}
-                              >
-                                <input 
-                                  type="file" 
-                                  id="assignment-file-input" 
-                                  accept=".pdf" 
-                                  style={{ display: 'none' }} 
-                                  onChange={handleAssignmentFileChange} 
-                                />
-                                <div className="upload-icon-wrapper">
-                                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" x2="12" y1="3" y2="15" />
-                                  </svg>
-                                </div>
-                                <h4 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 6px' }}>
-                                  Drag & drop your response PDF here
-                                </h4>
-                                <p style={{ fontSize: '12.5px', color: 'var(--text-secondary)', margin: '0 0 16px' }}>
-                                  Only PDF documents are supported (Max size 10MB)
-                                </p>
-                                <button type="button" className="classroom-back-btn" style={{ margin: '0 auto', display: 'inline-flex' }}>
-                                  Browse Files
-                                </button>
-                              </div>
-
-                              {selectedAssignmentFile && (
-                                <div className="section-card" style={{ marginTop: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'var(--bg-app)', border: '1px solid var(--primary-glow)' }}>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2.5">
-                                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
-                                    </svg>
-                                    <div>
-                                      <div style={{ fontSize: '13.5px', fontWeight: '700', color: 'var(--text-primary)' }}>{selectedAssignmentFile.name}</div>
-                                      <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{(selectedAssignmentFile.size / 1024).toFixed(1)} KB</div>
-                                    </div>
-                                  </div>
-                                  <div style={{ display: 'flex', gap: 8 }}>
-                                    <button 
-                                      type="button" 
-                                      className="classroom-back-btn" 
-                                      style={{ padding: '6px 12px', fontSize: '12px' }}
-                                      onClick={() => setSelectedAssignmentFile(null)}
-                                    >
-                                      Cancel
-                                    </button>
-                                    <button 
-                                      type="button" 
-                                      className="btn-primary" 
-                                      style={{ width: 'auto', padding: '6px 12px', borderRadius: 8, fontSize: '12px' }}
-                                      onClick={() => handleAssignmentSubmit(activeAssignment.id)}
-                                      disabled={isSubmittingAssignment}
-                                    >
-                                      {isSubmittingAssignment ? 'Submitting...' : 'Submit Now'}
-                                    </button>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
+                        <span className="assignment-badge pending">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                          </svg>
+                          Pending Submission
+                        </span>
                       )}
                     </div>
                   </div>
 
+                  <div style={{
+                    display: 'flex',
+                    gap: '24px',
+                    margin: '24px 0',
+                    padding: '16px',
+                    backgroundColor: 'var(--input-bg)',
+                    borderRadius: '12px',
+                    border: '1px solid var(--border-card)',
+                    flexWrap: 'wrap'
+                  }}>
+                    <div className="assignment-meta-item">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
+                      </svg>
+                      <strong>Due Date:</strong> {activeAssignment.dueDate}
+                    </div>
+                    <div className="assignment-meta-item">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
+                      </svg>
+                      <strong>File Name:</strong> {activeAssignment.fileName}
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                    <a
+                      href={activeAssignment.downloadUrl}
+                      download={activeAssignment.fileName}
+                      className="btn-primary"
+                      style={{
+                        width: 'auto',
+                        padding: '10px 20px',
+                        borderRadius: '10px',
+                        fontSize: '13.5px',
+                        fontWeight: '700',
+                        textDecoration: 'none',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px'
+                      }}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" x2="12" y1="15" y2="3" />
+                      </svg>
+                      Download PDF
+                    </a>
+                    <button
+                      type="button"
+                      className="classroom-back-btn"
+                      onClick={() => setShowPdfPreview(true)}
+                    >
+                      Preview Guide
+                    </button>
+                  </div>
                 </div>
+
+                {/* Feedback or Evaluation area if graded */}
+                {isGraded && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginTop: '24px' }}>
+                    {activeAssignment.grades.map((grade, idx) => (
+                      <div className="assignment-card" key={idx} style={{ margin: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                        <div>
+                          <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              {idx === 0 ? (
+                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                              ) : (
+                                <polygon points="12 2 2 7 12 12 22 7 12 2" />
+                              )}
+                              {idx === 0 ? (
+                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                              ) : (
+                                <>
+                                  <polyline points="2 17 12 22 22 17" />
+                                  <polyline points="2 12 12 17 22 12" />
+                                </>
+                              )}
+                            </svg>
+                            {grade.section}
+                          </h3>
+                          
+                          <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start', marginBottom: '16px', flexWrap: 'wrap' }}>
+                            <div style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              background: 'rgba(99, 102, 241, 0.06)',
+                              border: '1px solid rgba(99, 102, 241, 0.15)',
+                              borderRadius: '12px',
+                              padding: '12px 16px',
+                              minWidth: '100px',
+                              textAlign: 'center'
+                            }}>
+                              <span style={{ fontSize: '10px', fontWeight: '800', color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Grade</span>
+                              <span style={{ fontSize: '24px', fontWeight: '900', color: 'var(--text-primary)', margin: '2px 0' }}>{grade.score}</span>
+                              <span style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>out of 10.0</span>
+                            </div>
+
+                            <div style={{ flex: 1, minWidth: '240px' }}>
+                              <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                Assessor Feedback:
+                              </div>
+                              <blockquote style={{
+                                margin: 0,
+                                padding: '10px 14px',
+                                background: 'var(--input-bg)',
+                                borderLeft: `4px solid ${parseFloat(grade.score) >= 7 ? 'var(--primary)' : '#f59e0b'}`,
+                                borderRadius: '0 8px 8px 0',
+                                fontSize: '13px',
+                                color: 'var(--text-primary)',
+                                lineHeight: '1.4',
+                                fontStyle: 'italic'
+                              }}>
+                                "{grade.feedback}"
+                              </blockquote>
+                            </div>
+                          </div>
+                        </div>
+                        <div style={{ borderTop: '1px dashed var(--border-card)', paddingTop: '12px', marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Evaluated by: <strong>Sheren Molt</strong></span>
+                          <span className="assignment-badge" style={{
+                            fontSize: '11px',
+                            fontWeight: '800',
+                            background: parseFloat(grade.score) >= 7 ? 'rgba(16,185,129,0.08)' : 'rgba(245,158,11,0.08)',
+                            color: parseFloat(grade.score) >= 7 ? 'var(--success)' : '#d97706',
+                            padding: '2px 8px',
+                            borderRadius: '4px',
+                            border: '1px solid currentColor'
+                          }}>
+                            {parseFloat(grade.score) >= 7 ? 'Passed' : 'Passed with Warning'}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Submission Area Card */}
+                <div className="assignment-card" style={{ padding: '30px', marginTop: '24px' }}>
+                  <h3 style={{ fontSize: '18px', fontWeight: '750', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-card)', paddingBottom: '12px', marginBottom: '20px' }}>
+                    Submission Area
+                  </h3>
+
+                  {activeSubmission.submitted ? (
+                    <div style={{
+                      textAlign: 'center',
+                      padding: '30px 20px',
+                      background: 'rgba(16, 185, 129, 0.03)',
+                      border: '1px solid rgba(16, 185, 129, 0.15)',
+                      borderRadius: '16px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <div style={{
+                        width: '56px',
+                        height: '56px',
+                        borderRadius: '50%',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        color: 'var(--success)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '24px',
+                        marginBottom: '16px'
+                      }}>
+                        ✓
+                      </div>
+                      <h4 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 6px' }}>
+                        {isGraded ? "Assignment Evaluated" : "Assignment Submitted Successfully"}
+                      </h4>
+                      <p style={{ fontSize: '13.5px', color: 'var(--text-secondary)', margin: '0 0 16px' }}>
+                        Submitted file: <strong>{activeSubmission.fileName}</strong> ({activeSubmission.submittedAt})
+                      </p>
+                      <button
+                        type="button"
+                        className="classroom-back-btn"
+                        onClick={() => handleResetAssignmentSubmission(activeAssignment.id)}
+                        style={{ margin: '0 auto' }}
+                      >
+                        Re-submit Assignment
+                      </button>
+                    </div>
+                  ) : (
+                    <div>
+                      <div 
+                        className={`upload-dropzone ${isDragOver ? 'dragover' : ''}`}
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
+                        onClick={() => document.getElementById('assignment-file-input').click()}
+                      >
+                        <input 
+                          type="file" 
+                          id="assignment-file-input" 
+                          accept=".pdf" 
+                          style={{ display: 'none' }} 
+                          onChange={handleAssignmentFileChange} 
+                        />
+                        <div className="upload-icon-wrapper">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" x2="12" y1="3" y2="15" />
+                          </svg>
+                        </div>
+                        <h4 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 6px' }}>
+                          Drag & drop your response PDF here
+                        </h4>
+                        <p style={{ fontSize: '12.5px', color: 'var(--text-secondary)', margin: '0 0 16px' }}>
+                          Only PDF documents are supported (Max size 10MB)
+                        </p>
+                        <button type="button" className="classroom-back-btn" style={{ margin: '0 auto', display: 'inline-flex' }}>
+                          Browse Files
+                        </button>
+                      </div>
+
+                      {selectedAssignmentFile && (
+                        <div className="section-card" style={{ marginTop: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'var(--bg-app)', border: '1px solid var(--primary-glow)' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2.5">
+                              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
+                            </svg>
+                            <div>
+                              <div style={{ fontSize: '13.5px', fontWeight: '700', color: 'var(--text-primary)' }}>{selectedAssignmentFile.name}</div>
+                              <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{(selectedAssignmentFile.size / 1024).toFixed(1)} KB</div>
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', gap: 8 }}>
+                            <button 
+                              type="button" 
+                              className="classroom-back-btn" 
+                              style={{ padding: '6px 12px', fontSize: '12px' }}
+                              onClick={() => setSelectedAssignmentFile(null)}
+                            >
+                              Cancel
+                            </button>
+                            <button 
+                              type="button" 
+                              className="btn-primary" 
+                              style={{ width: 'auto', padding: '6px 12px', borderRadius: 8, fontSize: '12px' }}
+                              onClick={() => handleAssignmentSubmit(activeAssignment.id)}
+                              disabled={isSubmittingAssignment}
+                            >
+                              {isSubmittingAssignment ? 'Submitting...' : 'Submit Now'}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
               </section>
             );
           })()}
