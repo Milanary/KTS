@@ -370,9 +370,12 @@ const DEFAULT_ASSIGNMENTS = [
     id: 'week2.1',
     title: 'Assignment Week2.1: Rights-Based Aged Care Act and Regulatory Framework',
     dueDate: 'July 2, 2026 at 11:59 PM',
-    status: 'Pending',
+    status: 'Graded',
     fileName: 'Assignment Week2.1.pdf',
-    downloadUrl: '/Assignment Week2.1.pdf'
+    downloadUrl: '/Assignment Week2.1.pdf',
+    grades: [
+      { section: 'Regulatory Framework', score: '6.0', feedback: 'There is a noticeable improvement compared to your previous work, but there is still room for improvement. Keep on progressing!' }
+    ]
   }
 ];
 
@@ -912,7 +915,8 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
         const parsed = JSON.parse(saved);
         if (
           parsed.week1?.grades?.[0]?.section === 'Empowerment Principles' || 
-          (parsed.week2?.grades && parsed.week2.grades.length > 1)
+          (parsed.week2?.grades && parsed.week2.grades.length > 1) ||
+          !parsed['week2.1']?.grades
         ) {
           saved = null;
         } else {
@@ -946,9 +950,12 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
         ]
       },
       'week2.1': {
-        submitted: false,
-        fileName: '',
-        submittedAt: ''
+        submitted: true,
+        fileName: 'Assignment_Week2.1_Submission.pdf',
+        submittedAt: 'July 2, 2026 at 03:30 PM',
+        grades: [
+          { section: 'Regulatory Framework', score: '6.0', feedback: 'There is a noticeable improvement compared to your previous work, but there is still room for improvement. Keep on progressing!' }
+        ]
       }
     };
     
@@ -3021,13 +3028,13 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
                           <span className="assignment-badge" style={{
                             fontSize: '11px',
                             fontWeight: '800',
-                            background: parseFloat(grade.score) >= 7 ? 'rgba(16,185,129,0.08)' : 'rgba(245,158,11,0.08)',
-                            color: parseFloat(grade.score) >= 7 ? 'var(--success)' : '#d97706',
+                            background: parseFloat(grade.score) >= 6 ? 'rgba(16,185,129,0.08)' : 'rgba(245,158,11,0.08)',
+                            color: parseFloat(grade.score) >= 6 ? 'var(--success)' : '#d97706',
                             padding: '2px 8px',
                             borderRadius: '4px',
                             border: '1px solid currentColor'
                           }}>
-                            {parseFloat(grade.score) >= 7 ? 'Passed' : 'Passed with Warning'}
+                            {parseFloat(grade.score) >= 6 ? 'Passed' : 'Passed with Warning'}
                           </span>
                         </div>
                       </div>
