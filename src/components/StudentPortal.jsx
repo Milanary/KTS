@@ -381,7 +381,7 @@ const DEFAULT_ASSIGNMENTS = [
   {
     id: 'week3',
     title: 'Assignment Week3: Balancing Clinical Safety',
-    dueDate: 'July 9, 2026 at 11:59 PM',
+    dueDate: 'July 15, 2026 at 11:59 PM',
     status: 'Pending',
     fileName: 'Assignment Week3.pdf',
     downloadUrl: '/Assignment Week3.pdf'
