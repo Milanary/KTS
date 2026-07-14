@@ -323,8 +323,9 @@ const COURSE_LESSON_CONTENT = {
       videoUrl: 'https://www.youtube.com/watch?v=OM3wmv6qZtk'
     },
     3: {
-      title: 'Mandatory Reporting & Abuse Disclosures',
-      desc: 'Define reportable assaults under the Serious Incident Response Scheme (SIRS). Learn reporting timelines and legal obligations to protect whistleblowers.'
+      title: 'Balancing Clinical Safety',
+      desc: 'Analyze clinical safety guidelines and infection prevention protocols under the new Aged Care Quality Standards. Review respiratory precautions, clinical obligations, and how to balance residential care with infection management.',
+      videoUrl: 'https://www.youtube.com/watch?v=0KztmS244hI'
     },
     4: {
       title: 'Privacy, Confidentiality, and Medical Records',
@@ -376,6 +377,14 @@ const DEFAULT_ASSIGNMENTS = [
     grades: [
       { section: 'Regulatory Framework', score: '6.0', feedback: 'There is a noticeable improvement compared to your previous work, but there is still room for improvement. Keep on progressing!' }
     ]
+  },
+  {
+    id: 'week3',
+    title: 'Assignment Week3: Balancing Clinical Safety',
+    dueDate: 'July 9, 2026 at 11:59 PM',
+    status: 'Pending',
+    fileName: 'Assignment Week3.pdf',
+    downloadUrl: '/Assignment Week3.pdf'
   }
 ];
 
@@ -916,7 +925,8 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
         if (
           parsed.week1?.grades?.[0]?.section === 'Empowerment Principles' || 
           (parsed.week2?.grades && parsed.week2.grades.length > 1) ||
-          !parsed['week2.1']?.grades
+          !parsed['week2.1']?.grades ||
+          !parsed['week3']
         ) {
           saved = null;
         } else {
@@ -956,6 +966,11 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
         grades: [
           { section: 'Regulatory Framework', score: '6.0', feedback: 'There is a noticeable improvement compared to your previous work, but there is still room for improvement. Keep on progressing!' }
         ]
+      },
+      'week3': {
+        submitted: false,
+        fileName: '',
+        submittedAt: ''
       }
     };
     
@@ -963,7 +978,7 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
     return defaultSubmissions;
   });
 
-  const [selectedAssignmentId, setSelectedAssignmentId] = useState('week2.1');
+  const [selectedAssignmentId, setSelectedAssignmentId] = useState('week3');
   const [showPdfPreview, setShowPdfPreview] = useState(false);
   const [selectedAssignmentFile, setSelectedAssignmentFile] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -2844,7 +2859,7 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
                           gap: '8px'
                         }}
                       >
-                        {assignment.id === 'week2.1' ? 'Assignment Week 2.1' : (assignment.id === 'week2' ? 'Assignment Week 2' : 'Assignment Week 1')}
+                        {assignment.id === 'week3' ? 'Assignment Week 3' : (assignment.id === 'week2.1' ? 'Assignment Week 2.1' : (assignment.id === 'week2' ? 'Assignment Week 2' : 'Assignment Week 1'))}
                         <span style={{ 
                           fontSize: '10px', 
                           padding: '2px 6px', 
