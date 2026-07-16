@@ -382,9 +382,16 @@ const DEFAULT_ASSIGNMENTS = [
     id: 'week3',
     title: 'Assignment Week3: Balancing Clinical Safety',
     dueDate: 'July 15, 2026 at 11:59 PM',
-    status: 'Pending',
+    status: 'Graded',
     fileName: 'Assignment Week3.pdf',
-    downloadUrl: '/Assignment Week3.pdf'
+    downloadUrl: '/Assignment Week3.pdf',
+    grades: [
+      {
+        section: 'Clinical Safety',
+        score: '4.5',
+        feedback: 'Based on the writing style and overall consistency, this assignment appears to be AI-assisted with human editing. I estimate a 75–85% likelihood of AI assistance.\n\nThis assessment is not based on the accuracy of the content, but on recurring writing patterns observed throughout the assignment.\n\nKey Reasons:\n- Nearly every answer follows the same structure (definition, explanation, example, conclusion).\n- Repetitive use of similar transitions, vocabulary, and concluding statements.\n- Highly consistent writing style across all responses, making the document feel formulaic rather than naturally written.\n- Presence of awkward grammar and phrasing suggests the content was likely edited after AI generation rather than written entirely by AI.'
+      }
+    ]
   }
 ];
 
@@ -926,7 +933,9 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
           parsed.week1?.grades?.[0]?.section === 'Empowerment Principles' || 
           (parsed.week2?.grades && parsed.week2.grades.length > 1) ||
           !parsed['week2.1']?.grades ||
-          !parsed['week3']
+          !parsed['week3']?.grades ||
+          parsed['week3']?.grades?.[0]?.score === '6.0' ||
+          parsed['week3']?.grades?.[0]?.feedback?.includes('→')
         ) {
           saved = null;
         } else {
@@ -968,9 +977,16 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
         ]
       },
       'week3': {
-        submitted: false,
-        fileName: '',
-        submittedAt: ''
+        submitted: true,
+        fileName: 'Assignment_Week3_Submission.pdf',
+        submittedAt: 'July 15, 2026 at 09:30 AM',
+        grades: [
+          {
+            section: 'Clinical Safety',
+            score: '4.5',
+            feedback: 'Based on the writing style and overall consistency, this assignment appears to be AI-assisted with human editing. I estimate a 75–85% likelihood of AI assistance.\n\nThis assessment is not based on the accuracy of the content, but on recurring writing patterns observed throughout the assignment.\n\nKey Reasons:\n- Nearly every answer follows the same structure (definition, explanation, example, conclusion).\n- Repetitive use of similar transitions, vocabulary, and concluding statements.\n- Highly consistent writing style across all responses, making the document feel formulaic rather than naturally written.\n- Presence of awkward grammar and phrasing suggests the content was likely edited after AI generation rather than written entirely by AI.'
+          }
+        ]
       }
     };
     
@@ -2864,11 +2880,21 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
                           fontSize: '10px', 
                           padding: '2px 6px', 
                           borderRadius: '4px',
-                          background: hasGrades ? 'rgba(16, 185, 129, 0.1)' : (sub.submitted ? 'rgba(99, 102, 241, 0.1)' : 'rgba(245, 158, 11, 0.1)'),
-                          color: hasGrades ? 'var(--success)' : (sub.submitted ? 'var(--primary)' : 'var(--warning)'),
+                          background: hasGrades && parseFloat(assignment.grades[0].score) < 5.0
+                            ? 'rgba(239, 68, 68, 0.1)'
+                            : hasGrades 
+                              ? 'rgba(16, 185, 129, 0.1)' 
+                              : (sub.submitted ? 'rgba(99, 102, 241, 0.1)' : 'rgba(245, 158, 11, 0.1)'),
+                          color: hasGrades && parseFloat(assignment.grades[0].score) < 5.0
+                            ? 'var(--danger)'
+                            : hasGrades 
+                              ? 'var(--success)' 
+                              : (sub.submitted ? 'var(--primary)' : 'var(--warning)'),
                           fontWeight: '800'
                         }}>
-                          {hasGrades ? 'Graded' : (sub.submitted ? 'Submitted' : 'Pending')}
+                          {hasGrades && parseFloat(assignment.grades[0].score) < 5.0 
+                            ? 'Failed' 
+                            : (hasGrades ? 'Graded' : (sub.submitted ? 'Submitted' : 'Pending'))}
                         </span>
                       </button>
                     );
@@ -2892,12 +2918,21 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
                     <div>
                       {activeSubmission.submitted ? (
                         isGraded ? (
-                          <span className="assignment-badge completed" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
-                              <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            Completed & Graded
-                          </span>
+                          isGraded && parseFloat(activeAssignment.grades[0].score) < 5.0 ? (
+                            <span className="assignment-badge completed" style={{ background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                                <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
+                              </svg>
+                              Failed & Graded
+                            </span>
+                          ) : (
+                            <span className="assignment-badge completed" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                                <polyline points="20 6 9 17 4 12" />
+                              </svg>
+                              Completed & Graded
+                            </span>
+                          )
                         ) : (
                           <span className="assignment-badge submitted">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
@@ -3026,12 +3061,13 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
                                 margin: 0,
                                 padding: '10px 14px',
                                 background: 'var(--input-bg)',
-                                borderLeft: `4px solid ${parseFloat(grade.score) >= 7 ? 'var(--primary)' : '#f59e0b'}`,
+                                borderLeft: `4px solid ${parseFloat(grade.score) >= 7 ? 'var(--primary)' : parseFloat(grade.score) >= 6 ? '#f59e0b' : 'var(--danger)'}`,
                                 borderRadius: '0 8px 8px 0',
                                 fontSize: '13px',
                                 color: 'var(--text-primary)',
                                 lineHeight: '1.4',
-                                fontStyle: 'italic'
+                                fontStyle: 'italic',
+                                whiteSpace: 'pre-line'
                               }}>
                                 "{grade.feedback}"
                               </blockquote>
@@ -3043,13 +3079,17 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
                           <span className="assignment-badge" style={{
                             fontSize: '11px',
                             fontWeight: '800',
-                            background: parseFloat(grade.score) >= 6 ? 'rgba(16,185,129,0.08)' : 'rgba(245,158,11,0.08)',
-                            color: parseFloat(grade.score) >= 6 ? 'var(--success)' : '#d97706',
+                            background: parseFloat(grade.score) >= 6 
+                              ? 'rgba(16,185,129,0.08)' 
+                              : 'rgba(239, 68, 68, 0.08)',
+                            color: parseFloat(grade.score) >= 6 
+                              ? 'var(--success)' 
+                              : 'var(--danger)',
                             padding: '2px 8px',
                             borderRadius: '4px',
                             border: '1px solid currentColor'
                           }}>
-                            {parseFloat(grade.score) >= 6 ? 'Passed' : 'Passed with Warning'}
+                            {parseFloat(grade.score) >= 6 ? 'Passed' : 'Failed (Resubmission Required)'}
                           </span>
                         </div>
                       </div>
