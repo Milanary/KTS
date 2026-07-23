@@ -207,8 +207,8 @@ const DEFAULT_COURSES = [
     title: 'CHCLEG003: Manage legal and ethical compliance',
     category: 'Regulations',
     description: 'Establish standard operational safety benchmarks. Understand duty of care, national privacy principles, and mandatory reporting guidelines in Australia.',
-    lessonsCount: 6,
-    lessons: [1, 2, '2.1', 3, 4, 5]
+    lessonsCount: 7,
+    lessons: [1, 2, '2.1', 3, 4, 5, 6]
   }
 ];
 
@@ -328,10 +328,15 @@ const COURSE_LESSON_CONTENT = {
       videoUrl: 'https://www.youtube.com/watch?v=0KztmS244hI'
     },
     4: {
+      title: 'Digital Systems, Interoperability, and Emerging Tech',
+      desc: 'An ongoing webinar series for the care sector focused on creating a better-connected, sustainable and modern IT network. Topics include: Digital Transformation update, Business to Government (B2G) - API release, Commonwealth Home Support Program (CHSP), Therapeutic Goods Administration (TGA) – AI scribes, and Artificial Intelligence (AI) Learning byte – Algorithms Vs AI.',
+      videoUrl: 'https://youtu.be/hbxzOjU1NTo?si=2mTyZi0wVIMZRvWo'
+    },
+    5: {
       title: 'Privacy, Confidentiality, and Medical Records',
       desc: 'Review privacy legislation in Australian aged care. Understand constraints on sharing medical information, secure storage of logs, and client consent policies.'
     },
-    5: {
+    6: {
       title: 'WHS Hazard Mapping & Incident Reporting',
       desc: 'Identify hazards in aged care workspaces (trips, slips, chemical exposure). Complete mock incident reports, risk assessment templates, and hazard logs.'
     }
@@ -392,6 +397,14 @@ const DEFAULT_ASSIGNMENTS = [
         feedback: 'Based on the writing style and overall consistency, this assignment appears to be AI-assisted with human editing. I estimate a 75–85% likelihood of AI assistance.\n\nThis assessment is not based on the accuracy of the content, but on recurring writing patterns observed throughout the assignment.\n\nKey Reasons:\n- Nearly every answer follows the same structure (definition, explanation, example, conclusion).\n- Repetitive use of similar transitions, vocabulary, and concluding statements.\n- Highly consistent writing style across all responses, making the document feel formulaic rather than naturally written.\n- Presence of awkward grammar and phrasing suggests the content was likely edited after AI generation rather than written entirely by AI.'
       }
     ]
+  },
+  {
+    id: 'week4',
+    title: 'Assignment Week4: Digital Systems, Interoperability, and Emerging Tech',
+    dueDate: 'August 6, 2026 at 11:59 PM',
+    status: 'Pending',
+    fileName: 'Assignment Week4.pdf',
+    downloadUrl: '/Assignment Week4.pdf'
   }
 ];
 
@@ -813,9 +826,9 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
         );
         if (!hasOldCourses) {
           const chclegCourse = parsed.find(c => c.id === 'chcleg003');
-          if (chclegCourse && (chclegCourse.lessonsCount !== 6 || !chclegCourse.lessons)) {
-            chclegCourse.lessonsCount = 6;
-            chclegCourse.lessons = [1, 2, '2.1', 3, 4, 5];
+          if (chclegCourse && (chclegCourse.lessonsCount !== 7 || !chclegCourse.lessons || chclegCourse.lessons.length < 7)) {
+            chclegCourse.lessonsCount = 7;
+            chclegCourse.lessons = [1, 2, '2.1', 3, 4, 5, 6];
             localStorage.setItem('kts_courses', JSON.stringify(parsed));
           }
           return parsed;
@@ -934,6 +947,8 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
           (parsed.week2?.grades && parsed.week2.grades.length > 1) ||
           !parsed['week2.1']?.grades ||
           !parsed['week3']?.grades ||
+          !parsed['week4'] ||
+          parsed['week3']?.grades?.[0]?.section !== 'Clinical Safety' ||
           parsed['week3']?.grades?.[0]?.score === '6.0' ||
           parsed['week3']?.grades?.[0]?.feedback?.includes('→')
         ) {
@@ -987,6 +1002,11 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
             feedback: 'Based on the writing style and overall consistency, this assignment appears to be AI-assisted with human editing. I estimate a 75–85% likelihood of AI assistance.\n\nThis assessment is not based on the accuracy of the content, but on recurring writing patterns observed throughout the assignment.\n\nKey Reasons:\n- Nearly every answer follows the same structure (definition, explanation, example, conclusion).\n- Repetitive use of similar transitions, vocabulary, and concluding statements.\n- Highly consistent writing style across all responses, making the document feel formulaic rather than naturally written.\n- Presence of awkward grammar and phrasing suggests the content was likely edited after AI generation rather than written entirely by AI.'
           }
         ]
+      },
+      'week4': {
+        submitted: false,
+        fileName: '',
+        submittedAt: ''
       }
     };
     
@@ -2875,7 +2895,7 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
                           gap: '8px'
                         }}
                       >
-                        {assignment.id === 'week3' ? 'Assignment Week 3' : (assignment.id === 'week2.1' ? 'Assignment Week 2.1' : (assignment.id === 'week2' ? 'Assignment Week 2' : 'Assignment Week 1'))}
+                        {assignment.id === 'week2.1' ? 'Assignment Week 2.1' : `Assignment Week ${assignment.id.replace('week', '')}`}
                         <span style={{ 
                           fontSize: '10px', 
                           padding: '2px 6px', 
@@ -3061,7 +3081,7 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
                                 margin: 0,
                                 padding: '10px 14px',
                                 background: 'var(--input-bg)',
-                                borderLeft: `4px solid ${parseFloat(grade.score) >= 7 ? 'var(--primary)' : parseFloat(grade.score) >= 6 ? '#f59e0b' : 'var(--danger)'}`,
+                                borderLeft: `4px solid ${parseFloat(grade.score) >= 7 ? 'var(--primary)' : (activeAssignment.id === 'week2' || parseFloat(grade.score) >= 6) ? '#f59e0b' : 'var(--danger)'}`,
                                 borderRadius: '0 8px 8px 0',
                                 fontSize: '13px',
                                 color: 'var(--text-primary)',
@@ -3081,15 +3101,17 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
                             fontWeight: '800',
                             background: parseFloat(grade.score) >= 6 
                               ? 'rgba(16,185,129,0.08)' 
-                              : 'rgba(239, 68, 68, 0.08)',
+                              : (activeAssignment.id === 'week2' ? 'rgba(245, 158, 11, 0.08)' : 'rgba(239, 68, 68, 0.08)'),
                             color: parseFloat(grade.score) >= 6 
                               ? 'var(--success)' 
-                              : 'var(--danger)',
+                              : (activeAssignment.id === 'week2' ? '#d97706' : 'var(--danger)'),
                             padding: '2px 8px',
                             borderRadius: '4px',
                             border: '1px solid currentColor'
                           }}>
-                            {parseFloat(grade.score) >= 6 ? 'Passed' : 'Failed (Resubmission Required)'}
+                            {parseFloat(grade.score) >= 6 
+                              ? 'Passed' 
+                              : (activeAssignment.id === 'week2' ? 'Passed with Warning' : 'Failed (Resubmission Required)')}
                           </span>
                         </div>
                       </div>
