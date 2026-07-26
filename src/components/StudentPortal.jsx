@@ -401,7 +401,7 @@ const DEFAULT_ASSIGNMENTS = [
   {
     id: 'week4',
     title: 'Assignment Week4: Digital Systems, Interoperability, and Emerging Tech',
-    dueDate: 'August 6, 2026 at 11:59 PM',
+    dueDate: 'July 26, 2026 at 11:59 PM',
     status: 'Pending',
     fileName: 'Assignment Week4.pdf',
     downloadUrl: '/Assignment Week4.pdf'
