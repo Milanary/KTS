@@ -334,7 +334,8 @@ const COURSE_LESSON_CONTENT = {
     },
     5: {
       title: 'Privacy, Confidentiality, and Medical Records',
-      desc: 'Review privacy legislation in Australian aged care. Understand constraints on sharing medical information, secure storage of logs, and client consent policies.'
+      desc: 'Review privacy legislation in Australian aged care. Understand constraints on sharing medical information, secure storage of logs, and client consent policies.',
+      videoUrl: 'https://www.youtube.com/watch?v=XfXm01YTZiY'
     },
     6: {
       title: 'WHS Hazard Mapping & Incident Reporting',
@@ -402,9 +403,24 @@ const DEFAULT_ASSIGNMENTS = [
     id: 'week4',
     title: 'Assignment Week4: Digital Systems, Interoperability, and Emerging Tech',
     dueDate: 'July 26, 2026 at 11:59 PM',
-    status: 'Pending',
+    status: 'Graded',
     fileName: 'Assignment Week4.pdf',
-    downloadUrl: '/Assignment Week4.pdf'
+    downloadUrl: '/Assignment Week4.pdf',
+    grades: [
+      {
+        section: 'Digital Systems',
+        score: '7.5',
+        feedback: 'Great progress! I have seen a lot of improvement in your writing pattern and research methodology. Keep up the good work.'
+      }
+    ]
+  },
+  {
+    id: 'week5',
+    title: 'Assignment Week5: Navigating the December 2022 Aged Care Sector Reforms and Regulatory Updates',
+    dueDate: 'July 30, 2026 at 11:59 PM',
+    status: 'Pending',
+    fileName: 'Assignment Week5.pdf',
+    downloadUrl: '/Assignment Week5.pdf'
   }
 ];
 
@@ -948,6 +964,9 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
           !parsed['week2.1']?.grades ||
           !parsed['week3']?.grades ||
           !parsed['week4'] ||
+          !parsed['week4']?.grades ||
+          !parsed['week5'] ||
+          parsed['week5']?.submitted === true ||
           parsed['week3']?.grades?.[0]?.section !== 'Clinical Safety' ||
           parsed['week3']?.grades?.[0]?.score === '6.0' ||
           parsed['week3']?.grades?.[0]?.feedback?.includes('→')
@@ -1004,6 +1023,18 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
         ]
       },
       'week4': {
+        submitted: true,
+        fileName: 'Assignment_Week4_Submission.pdf',
+        submittedAt: 'July 26, 2026 at 02:15 PM',
+        grades: [
+          {
+            section: 'Digital Systems',
+            score: '7.5',
+            feedback: 'Great progress! I have seen a lot of improvement in your writing pattern and research methodology. Keep up the good work.'
+          }
+        ]
+      },
+      'week5': {
         submitted: false,
         fileName: '',
         submittedAt: ''
