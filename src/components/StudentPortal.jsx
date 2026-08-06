@@ -418,9 +418,16 @@ const DEFAULT_ASSIGNMENTS = [
     id: 'week5',
     title: 'Assignment Week5: Navigating the December 2022 Aged Care Sector Reforms and Regulatory Updates',
     dueDate: 'July 30, 2026 at 11:59 PM',
-    status: 'Pending',
+    status: 'Graded',
     fileName: 'Assignment Week5.pdf',
-    downloadUrl: '/Assignment Week5.pdf'
+    downloadUrl: '/Assignment Week5.pdf',
+    grades: [
+      {
+        section: 'Regulatory Reforms',
+        score: '7.0',
+        feedback: 'Well done keep up the good work.'
+      }
+    ]
   }
 ];
 
@@ -966,7 +973,7 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
           !parsed['week4'] ||
           !parsed['week4']?.grades ||
           !parsed['week5'] ||
-          parsed['week5']?.submitted === true ||
+          !parsed['week5']?.grades ||
           parsed['week3']?.grades?.[0]?.section !== 'Clinical Safety' ||
           parsed['week3']?.grades?.[0]?.score === '6.0' ||
           parsed['week3']?.grades?.[0]?.feedback?.includes('→')
@@ -1035,9 +1042,16 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
         ]
       },
       'week5': {
-        submitted: false,
-        fileName: '',
-        submittedAt: ''
+        submitted: true,
+        fileName: 'Assignment_Week5_Submission.pdf',
+        submittedAt: 'August 5, 2026 at 11:00 AM',
+        grades: [
+          {
+            section: 'Regulatory Reforms',
+            score: '7.0',
+            feedback: 'Well done keep up the good work.'
+          }
+        ]
       }
     };
     
