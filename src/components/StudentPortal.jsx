@@ -207,8 +207,8 @@ const DEFAULT_COURSES = [
     title: 'CHCLEG003: Manage legal and ethical compliance',
     category: 'Regulations',
     description: 'Establish standard operational safety benchmarks. Understand duty of care, national privacy principles, and mandatory reporting guidelines in Australia.',
-    lessonsCount: 7,
-    lessons: [1, 2, '2.1', 3, 4, 5, 6]
+    lessonsCount: 8,
+    lessons: [1, 2, '2.1', 3, 4, 5, 6, 7]
   }
 ];
 
@@ -338,6 +338,11 @@ const COURSE_LESSON_CONTENT = {
       videoUrl: 'https://www.youtube.com/watch?v=XfXm01YTZiY'
     },
     6: {
+      title: 'Navigating the Single Assessment System, Assistive Technology Reforms, and Support at Home Transition',
+      desc: 'Official Department of Health and Aged Care webinar update for aged care providers. Highlights preparations for the Support at Home program (July 2025 rollout), implementation of the Single Assessment System (SAS), Assistive Technology and Home Modifications (AT-HM) scheme, and provider IT readiness grants.',
+      videoUrl: 'https://www.youtube.com/watch?v=g8HiunXi1VY'
+    },
+    7: {
       title: 'WHS Hazard Mapping & Incident Reporting',
       desc: 'Identify hazards in aged care workspaces (trips, slips, chemical exposure). Complete mock incident reports, risk assessment templates, and hazard logs.'
     }
@@ -428,6 +433,14 @@ const DEFAULT_ASSIGNMENTS = [
         feedback: 'Well done keep up the good work.'
       }
     ]
+  },
+  {
+    id: 'week6',
+    title: 'Assignment Week6: Navigating the Single Assessment System, Assistive Technology Reforms, and Support at Home Transition',
+    dueDate: 'August 12, 2026 at 11:59 PM',
+    status: 'Pending',
+    fileName: 'Assignment Week6.pdf',
+    downloadUrl: '/Assignment Week6.pdf'
   }
 ];
 
@@ -867,18 +880,17 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
   const [currentLessonIndex, setCurrentLessonIndex] = useState(1);
   const [progress, setProgress] = useState(() => {
     const savedProgress = localStorage.getItem('kts_student_progress');
+    const doneKeys = ['chcleg003-1', 'chcleg003-2', 'chcleg003-2.1', 'chcleg003-3', 'chcleg003-4', 'chcleg003-5'];
     if (savedProgress) {
       try {
         const parsed = JSON.parse(savedProgress);
         let updated = false;
-        if (parsed['chcleg003-1'] === undefined) {
-          parsed['chcleg003-1'] = true;
-          updated = true;
-        }
-        if (parsed['chcleg003-2'] === undefined || parsed['chcleg003-2'] !== true) {
-          parsed['chcleg003-2'] = true;
-          updated = true;
-        }
+        doneKeys.forEach((k) => {
+          if (parsed[k] === undefined || parsed[k] !== true) {
+            parsed[k] = true;
+            updated = true;
+          }
+        });
         if (updated) {
           localStorage.setItem('kts_student_progress', JSON.stringify(parsed));
         }
@@ -887,7 +899,8 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
         // Fall through
       }
     }
-    const defaultProgress = { 'chcleg003-1': true, 'chcleg003-2': true };
+    const defaultProgress = {};
+    doneKeys.forEach((k) => { defaultProgress[k] = true; });
     localStorage.setItem('kts_student_progress', JSON.stringify(defaultProgress));
     return defaultProgress;
   });
@@ -974,6 +987,8 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
           !parsed['week4']?.grades ||
           !parsed['week5'] ||
           !parsed['week5']?.grades ||
+          parsed['week6']?.submitted !== false ||
+          parsed['week6']?.grades ||
           parsed['week3']?.grades?.[0]?.section !== 'Clinical Safety' ||
           parsed['week3']?.grades?.[0]?.score === '6.0' ||
           parsed['week3']?.grades?.[0]?.feedback?.includes('→')
@@ -1052,6 +1067,11 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
             feedback: 'Well done keep up the good work.'
           }
         ]
+      },
+      'week6': {
+        submitted: false,
+        fileName: '',
+        submittedAt: ''
       }
     };
     
