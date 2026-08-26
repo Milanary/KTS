@@ -437,7 +437,7 @@ const DEFAULT_ASSIGNMENTS = [
   {
     id: 'week6',
     title: 'Assignment Week6: Navigating the Single Assessment System, Assistive Technology Reforms, and Support at Home Transition',
-    dueDate: 'August 12, 2026 at 11:59 PM',
+    dueDate: 'August 28, 2026 at 11:59 PM',
     status: 'Pending',
     fileName: 'Assignment Week6.pdf',
     downloadUrl: '/Assignment Week6.pdf'
