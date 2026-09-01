@@ -438,9 +438,16 @@ const DEFAULT_ASSIGNMENTS = [
     id: 'week6',
     title: 'Assignment Week6: Navigating the Single Assessment System, Assistive Technology Reforms, and Support at Home Transition',
     dueDate: 'August 28, 2026 at 11:59 PM',
-    status: 'Pending',
+    status: 'Graded',
     fileName: 'Assignment Week6.pdf',
-    downloadUrl: '/Assignment Week6.pdf'
+    downloadUrl: '/Assignment Week6.pdf',
+    grades: [
+      {
+        section: 'Single Assessment & Support at Home',
+        score: '8.5',
+        feedback: 'Well done! Excellent work with comprehensive analysis and clear presentation. No issues identified in this submission.'
+      }
+    ]
   }
 ];
 
@@ -985,10 +992,8 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
           !parsed['week3']?.grades ||
           !parsed['week4'] ||
           !parsed['week4']?.grades ||
-          !parsed['week5'] ||
-          !parsed['week5']?.grades ||
-          parsed['week6']?.submitted !== false ||
-          parsed['week6']?.grades ||
+          !parsed['week6'] ||
+          !parsed['week6']?.grades ||
           parsed['week3']?.grades?.[0]?.section !== 'Clinical Safety' ||
           parsed['week3']?.grades?.[0]?.score === '6.0' ||
           parsed['week3']?.grades?.[0]?.feedback?.includes('→')
@@ -1069,9 +1074,16 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
         ]
       },
       'week6': {
-        submitted: false,
-        fileName: '',
-        submittedAt: ''
+        submitted: true,
+        fileName: 'Assignment_Week6_Submission.pdf',
+        submittedAt: 'August 28, 2026 at 10:15 AM',
+        grades: [
+          {
+            section: 'Single Assessment & Support at Home',
+            score: '8.5',
+            feedback: 'Well done! Excellent work with comprehensive analysis and clear presentation. No issues identified in this submission.'
+          }
+        ]
       }
     };
     
