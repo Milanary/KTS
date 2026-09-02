@@ -448,6 +448,15 @@ const DEFAULT_ASSIGNMENTS = [
         feedback: 'Well done! Excellent work with comprehensive analysis and clear presentation. No issues identified in this submission.'
       }
     ]
+  },
+  {
+    id: 'week7',
+    title: 'Assignment Week7: Brief Clinical Competency, Infection Control and Field Operations in Aged Care',
+    dueDate: 'September 4, 2026 at 11:59 PM',
+    status: 'Pending',
+    fileName: 'Assignment Week7.pdf',
+    downloadUrl: '/Assignment Week7.pdf',
+    grades: []
   }
 ];
 
@@ -994,6 +1003,7 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
           !parsed['week4']?.grades ||
           !parsed['week6'] ||
           !parsed['week6']?.grades ||
+          !parsed['week7'] ||
           parsed['week3']?.grades?.[0]?.section !== 'Clinical Safety' ||
           parsed['week3']?.grades?.[0]?.score === '6.0' ||
           parsed['week3']?.grades?.[0]?.feedback?.includes('→')
@@ -1084,6 +1094,12 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
             feedback: 'Well done! Excellent work with comprehensive analysis and clear presentation. No issues identified in this submission.'
           }
         ]
+      },
+      'week7': {
+        submitted: false,
+        fileName: '',
+        submittedAt: '',
+        grades: []
       }
     };
     
@@ -1091,7 +1107,7 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
     return defaultSubmissions;
   });
 
-  const [selectedAssignmentId, setSelectedAssignmentId] = useState('week3');
+  const [selectedAssignmentId, setSelectedAssignmentId] = useState('week7');
   const [showPdfPreview, setShowPdfPreview] = useState(false);
   const [selectedAssignmentFile, setSelectedAssignmentFile] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -3172,7 +3188,7 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
                           </div>
                         </div>
                         <div style={{ borderTop: '1px dashed var(--border-card)', paddingTop: '12px', marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Evaluated by: <strong>Sheren Molt</strong></span>
+                          <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Evaluated by: <strong>Milan Aryal</strong></span>
                           <span className="assignment-badge" style={{
                             fontSize: '11px',
                             fontWeight: '800',
