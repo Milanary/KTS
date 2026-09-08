@@ -453,10 +453,16 @@ const DEFAULT_ASSIGNMENTS = [
     id: 'week7',
     title: 'Assignment Week7: Brief Clinical Competency, Infection Control and Field Operations in Aged Care',
     dueDate: 'September 4, 2026 at 11:59 PM',
-    status: 'Pending',
+    status: 'Graded',
     fileName: 'Assignment Week7.pdf',
     downloadUrl: '/Assignment Week7.pdf',
-    grades: []
+    grades: [
+      {
+        section: 'Clinical Competency & Field Operations',
+        score: '7.0',
+        feedback: 'Well done! This submission is exceptionally well-written, clearly structured, and beautifully formatted. Very impressive work throughout!'
+      }
+    ]
   }
 ];
 
@@ -1004,6 +1010,8 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
           !parsed['week6'] ||
           !parsed['week6']?.grades ||
           !parsed['week7'] ||
+          !parsed['week7']?.grades ||
+          !parsed['week7']?.grades?.length ||
           parsed['week3']?.grades?.[0]?.section !== 'Clinical Safety' ||
           parsed['week3']?.grades?.[0]?.score === '6.0' ||
           parsed['week3']?.grades?.[0]?.feedback?.includes('→')
@@ -1096,10 +1104,16 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
         ]
       },
       'week7': {
-        submitted: false,
-        fileName: '',
-        submittedAt: '',
-        grades: []
+        submitted: true,
+        fileName: 'Assignment_Week7_Submission.pdf',
+        submittedAt: 'September 4, 2026 at 04:30 PM',
+        grades: [
+          {
+            section: 'Clinical Competency & Field Operations',
+            score: '7.0',
+            feedback: 'Well done! This submission is exceptionally well-written, clearly structured, and beautifully formatted. Very impressive work throughout!'
+          }
+        ]
       }
     };
     
