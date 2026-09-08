@@ -460,7 +460,7 @@ const DEFAULT_ASSIGNMENTS = [
       {
         section: 'Clinical Competency & Field Operations',
         score: '7.0',
-        feedback: 'Well done! This submission is exceptionally well-written, clearly structured, and beautifully formatted. Very impressive work throughout!'
+        feedback: 'Well done! Good response with clear organization.'
       }
     ]
   }
@@ -1012,6 +1012,7 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
           !parsed['week7'] ||
           !parsed['week7']?.grades ||
           !parsed['week7']?.grades?.length ||
+          parsed['week7']?.grades?.[0]?.feedback?.includes('exceptionally well-written') ||
           parsed['week3']?.grades?.[0]?.section !== 'Clinical Safety' ||
           parsed['week3']?.grades?.[0]?.score === '6.0' ||
           parsed['week3']?.grades?.[0]?.feedback?.includes('→')
@@ -1111,7 +1112,7 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
           {
             section: 'Clinical Competency & Field Operations',
             score: '7.0',
-            feedback: 'Well done! This submission is exceptionally well-written, clearly structured, and beautifully formatted. Very impressive work throughout!'
+            feedback: 'Well done! Good response with clear organization.'
           }
         ]
       }
