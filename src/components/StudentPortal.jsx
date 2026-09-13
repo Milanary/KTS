@@ -364,7 +364,7 @@ const DEFAULT_ASSIGNMENTS = [
     fileName: 'Assignment Week1.pdf',
     downloadUrl: '/Assignment Week1.pdf',
     grades: [
-      { section: 'Rights & Regulation', score: '7.0', feedback: 'The submission is somewhat generic and lacks in-depth research. It would be improved by identifying and addressing the specific client pain points in detail rather than speaking in general terms.' }
+      { section: 'Rights & Regulation', score: '7.0', evaluator: 'Sheren Molt', feedback: 'The submission is somewhat generic and lacks in-depth research. It would be improved by identifying and addressing the specific client pain points in detail rather than speaking in general terms.' }
     ]
   },
   {
@@ -375,7 +375,7 @@ const DEFAULT_ASSIGNMENTS = [
     fileName: 'Assignment Week2.pdf',
     downloadUrl: '/Assignment Week2.pdf',
     grades: [
-      { section: 'Dispute Resolution', score: '5.5', feedback: 'The submitted analysis for the practical case studies clearly indicates an extensive reliance on AI-generated content rather than genuine human effort and personal reasoning. Please do not repeat this approach in future submissions, as continued use of automated text will not be tolerated.' }
+      { section: 'Dispute Resolution', score: '5.5', evaluator: 'Sheren Molt', feedback: 'The submitted analysis for the practical case studies clearly indicates an extensive reliance on AI-generated content rather than genuine human effort and personal reasoning. Please do not repeat this approach in future submissions, as continued use of automated text will not be tolerated.' }
     ]
   },
   {
@@ -386,7 +386,7 @@ const DEFAULT_ASSIGNMENTS = [
     fileName: 'Assignment Week2.1.pdf',
     downloadUrl: '/Assignment Week2.1.pdf',
     grades: [
-      { section: 'Regulatory Framework', score: '6.0', feedback: 'There is a noticeable improvement compared to your previous work, but there is still room for improvement. Keep on progressing!' }
+      { section: 'Regulatory Framework', score: '6.0', evaluator: 'Sheren Molt', feedback: 'There is a noticeable improvement compared to your previous work, but there is still room for improvement. Keep on progressing!' }
     ]
   },
   {
@@ -400,7 +400,8 @@ const DEFAULT_ASSIGNMENTS = [
       {
         section: 'Clinical Safety',
         score: '4.5',
-        feedback: 'Based on the writing style and overall consistency, this assignment appears to be AI-assisted with human editing. I estimate a 75–85% likelihood of AI assistance.\n\nThis assessment is not based on the accuracy of the content, but on recurring writing patterns observed throughout the assignment.\n\nKey Reasons:\n- Nearly every answer follows the same structure (definition, explanation, example, conclusion).\n- Repetitive use of similar transitions, vocabulary, and concluding statements.\n- Highly consistent writing style across all responses, making the document feel formulaic rather than naturally written.\n- Presence of awkward grammar and phrasing suggests the content was likely edited after AI generation rather than written entirely by AI.'
+        evaluator: 'Sheren Molt',
+        feedback: 'Based on the writing style and overall consistency, this assessment appears to be AI-assisted with human editing. I estimate a 75–85% likelihood of AI assistance.\n\nThis assessment is not based on the accuracy of the content, but on recurring writing patterns observed throughout the assignment.\n\nKey Reasons:\n- Nearly every answer follows the same structure (definition, explanation, example, conclusion).\n- Repetitive use of similar transitions, vocabulary, and concluding statements.\n- Highly consistent writing style across all responses, making the document feel formulaic rather than naturally written.\n- Presence of awkward grammar and phrasing suggests the content was likely edited after AI generation rather than written entirely by AI.'
       }
     ]
   },
@@ -415,6 +416,7 @@ const DEFAULT_ASSIGNMENTS = [
       {
         section: 'Digital Systems',
         score: '7.5',
+        evaluator: 'Sheren Molt',
         feedback: 'Great progress! I have seen a lot of improvement in your writing pattern and research methodology. Keep up the good work.'
       }
     ]
@@ -430,6 +432,7 @@ const DEFAULT_ASSIGNMENTS = [
       {
         section: 'Regulatory Reforms',
         score: '7.0',
+        evaluator: 'Sheren Molt',
         feedback: 'Well done keep up the good work.'
       }
     ]
@@ -445,6 +448,7 @@ const DEFAULT_ASSIGNMENTS = [
       {
         section: 'Single Assessment & Support at Home',
         score: '8.5',
+        evaluator: 'Sheren Molt',
         feedback: 'Well done! Excellent work with comprehensive analysis and clear presentation. No issues identified in this submission.'
       }
     ]
@@ -460,9 +464,18 @@ const DEFAULT_ASSIGNMENTS = [
       {
         section: 'Clinical Competency & Field Operations',
         score: '7.0',
+        evaluator: 'Milan Aryal',
         feedback: 'Well done! Good response with clear organization.'
       }
     ]
+  },
+  {
+    id: 'week8',
+    title: 'Assignment Week8: Hoisting Safety, Manual Transfer Techniques, and Ergonomics in Care Settings',
+    dueDate: 'September 15, 2026 at 11:59 PM',
+    status: 'Pending Subscription',
+    fileName: 'Assignment Week8.pdf',
+    downloadUrl: '/Assignment Week8.pdf'
   }
 ];
 
@@ -1015,7 +1028,9 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
           parsed['week7']?.grades?.[0]?.feedback?.includes('exceptionally well-written') ||
           parsed['week3']?.grades?.[0]?.section !== 'Clinical Safety' ||
           parsed['week3']?.grades?.[0]?.score === '6.0' ||
-          parsed['week3']?.grades?.[0]?.feedback?.includes('→')
+          parsed['week3']?.grades?.[0]?.feedback?.includes('→') ||
+          !parsed['week8'] ||
+          parsed['week1']?.grades?.[0]?.evaluator !== 'Sheren Molt'
         ) {
           saved = null;
         } else {
@@ -1037,7 +1052,7 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
         fileName: 'Assignment_Week1_Bhishan.pdf',
         submittedAt: 'June 18, 2026 at 04:30 PM',
         grades: [
-          { section: 'Rights & Regulation', score: '7.0', feedback: 'The submission is somewhat generic and lacks in-depth research. It would be improved by identifying and addressing the specific client pain points in detail rather than speaking in general terms.' }
+          { section: 'Rights & Regulation', score: '7.0', evaluator: 'Sheren Molt', feedback: 'The submission is somewhat generic and lacks in-depth research. It would be improved by identifying and addressing the specific client pain points in detail rather than speaking in general terms.' }
         ]
       },
       'week2': {
@@ -1045,7 +1060,7 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
         fileName: oldFileName,
         submittedAt: oldSubmittedAt,
         grades: [
-          { section: 'Dispute Resolution', score: '5.5', feedback: 'The submitted analysis for the practical case studies clearly indicates an extensive reliance on AI-generated content rather than genuine human effort and personal reasoning. Please do not repeat this approach in future submissions, as continued use of automated text will not be tolerated.' }
+          { section: 'Dispute Resolution', score: '5.5', evaluator: 'Sheren Molt', feedback: 'The submitted analysis for the practical case studies clearly indicates an extensive reliance on AI-generated content rather than genuine human effort and personal reasoning. Please do not repeat this approach in future submissions, as continued use of automated text will not be tolerated.' }
         ]
       },
       'week2.1': {
@@ -1053,7 +1068,7 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
         fileName: 'Assignment_Week2.1_Submission.pdf',
         submittedAt: 'July 2, 2026 at 03:30 PM',
         grades: [
-          { section: 'Regulatory Framework', score: '6.0', feedback: 'There is a noticeable improvement compared to your previous work, but there is still room for improvement. Keep on progressing!' }
+          { section: 'Regulatory Framework', score: '6.0', evaluator: 'Sheren Molt', feedback: 'There is a noticeable improvement compared to your previous work, but there is still room for improvement. Keep on progressing!' }
         ]
       },
       'week3': {
@@ -1064,7 +1079,8 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
           {
             section: 'Clinical Safety',
             score: '4.5',
-            feedback: 'Based on the writing style and overall consistency, this assignment appears to be AI-assisted with human editing. I estimate a 75–85% likelihood of AI assistance.\n\nThis assessment is not based on the accuracy of the content, but on recurring writing patterns observed throughout the assignment.\n\nKey Reasons:\n- Nearly every answer follows the same structure (definition, explanation, example, conclusion).\n- Repetitive use of similar transitions, vocabulary, and concluding statements.\n- Highly consistent writing style across all responses, making the document feel formulaic rather than naturally written.\n- Presence of awkward grammar and phrasing suggests the content was likely edited after AI generation rather than written entirely by AI.'
+            evaluator: 'Sheren Molt',
+            feedback: 'Based on the writing style and overall consistency, this assessment appears to be AI-assisted with human editing. I estimate a 75–85% likelihood of AI assistance.\n\nThis assessment is not based on the accuracy of the content, but on recurring writing patterns observed throughout the assignment.\n\nKey Reasons:\n- Nearly every answer follows the same structure (definition, explanation, example, conclusion).\n- Repetitive use of similar transitions, vocabulary, and concluding statements.\n- Highly consistent writing style across all responses, making the document feel formulaic rather than naturally written.\n- Presence of awkward grammar and phrasing suggests the content was likely edited after AI generation rather than written entirely by AI.'
           }
         ]
       },
@@ -1076,6 +1092,7 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
           {
             section: 'Digital Systems',
             score: '7.5',
+            evaluator: 'Sheren Molt',
             feedback: 'Great progress! I have seen a lot of improvement in your writing pattern and research methodology. Keep up the good work.'
           }
         ]
@@ -1088,6 +1105,7 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
           {
             section: 'Regulatory Reforms',
             score: '7.0',
+            evaluator: 'Sheren Molt',
             feedback: 'Well done keep up the good work.'
           }
         ]
@@ -1100,6 +1118,7 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
           {
             section: 'Single Assessment & Support at Home',
             score: '8.5',
+            evaluator: 'Sheren Molt',
             feedback: 'Well done! Excellent work with comprehensive analysis and clear presentation. No issues identified in this submission.'
           }
         ]
@@ -1112,9 +1131,16 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
           {
             section: 'Clinical Competency & Field Operations',
             score: '7.0',
+            evaluator: 'Milan Aryal',
             feedback: 'Well done! Good response with clear organization.'
           }
         ]
+      },
+      'week8': {
+        submitted: false,
+        fileName: null,
+        submittedAt: null,
+        grades: null
       }
     };
     
@@ -1122,7 +1148,7 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
     return defaultSubmissions;
   });
 
-  const [selectedAssignmentId, setSelectedAssignmentId] = useState('week7');
+  const [selectedAssignmentId, setSelectedAssignmentId] = useState('week8');
   const [showPdfPreview, setShowPdfPreview] = useState(false);
   const [selectedAssignmentFile, setSelectedAssignmentFile] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -3203,7 +3229,7 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
                           </div>
                         </div>
                         <div style={{ borderTop: '1px dashed var(--border-card)', paddingTop: '12px', marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Evaluated by: <strong>Milan Aryal</strong></span>
+                          <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Evaluated by: <strong>{grade.evaluator || (activeAssignment.id === 'week7' ? 'Milan Aryal' : 'Sheren Molt')}</strong></span>
                           <span className="assignment-badge" style={{
                             fontSize: '11px',
                             fontWeight: '800',
