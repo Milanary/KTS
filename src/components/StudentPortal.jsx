@@ -473,9 +473,17 @@ const DEFAULT_ASSIGNMENTS = [
     id: 'week8',
     title: 'Assignment Week8: Hoisting Safety, Manual Transfer Techniques, and Ergonomics in Care Settings',
     dueDate: 'September 15, 2026 at 11:59 PM',
-    status: 'Pending Subscription',
+    status: 'Graded',
     fileName: 'Assignment Week8.pdf',
-    downloadUrl: '/Assignment Week8.pdf'
+    downloadUrl: '/Assignment Week8.pdf',
+    grades: [
+      {
+        section: 'Hoisting Safety & Ergonomics',
+        score: '7.5',
+        evaluator: 'Milan Aryal',
+        feedback: 'Nicely done! Good submission overall, though there is still some room for improvement in refining your answer structures for better clarity.'
+      }
+    ]
   }
 ];
 
@@ -1030,6 +1038,9 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
           parsed['week3']?.grades?.[0]?.score === '6.0' ||
           parsed['week3']?.grades?.[0]?.feedback?.includes('→') ||
           !parsed['week8'] ||
+          !parsed['week8']?.grades ||
+          !parsed['week8']?.grades?.length ||
+          parsed['week8']?.grades?.[0]?.evaluator !== 'Milan Aryal' ||
           parsed['week1']?.grades?.[0]?.evaluator !== 'Sheren Molt'
         ) {
           saved = null;
@@ -1137,10 +1148,17 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
         ]
       },
       'week8': {
-        submitted: false,
-        fileName: null,
-        submittedAt: null,
-        grades: null
+        submitted: true,
+        fileName: 'Assignment_Week8_Submission.pdf',
+        submittedAt: 'September 15, 2026 at 04:30 PM',
+        grades: [
+          {
+            section: 'Hoisting Safety & Ergonomics',
+            score: '7.5',
+            evaluator: 'Milan Aryal',
+            feedback: 'Nicely done! Good submission overall, though there is still some room for improvement in refining your answer structures for better clarity.'
+          }
+        ]
       }
     };
     
