@@ -484,6 +484,15 @@ const DEFAULT_ASSIGNMENTS = [
         feedback: 'Nicely done! Good submission overall, though there is still some room for improvement in refining your answer structures for better clarity.'
       }
     ]
+  },
+  {
+    id: 'week9',
+    title: 'Assignment Week9: Infection Control Protocols & Personal Protection in Care Settings',
+    dueDate: 'September 29, 2026 at 11:59 AM',
+    status: 'Pending Submission',
+    fileName: 'Assignment Week9.pdf',
+    downloadUrl: '/Assignment Week9.pdf',
+    grades: []
   }
 ];
 
@@ -1041,7 +1050,8 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
           !parsed['week8']?.grades ||
           !parsed['week8']?.grades?.length ||
           parsed['week8']?.grades?.[0]?.evaluator !== 'Milan Aryal' ||
-          parsed['week1']?.grades?.[0]?.evaluator !== 'Sheren Molt'
+          parsed['week1']?.grades?.[0]?.evaluator !== 'Sheren Molt' ||
+          !parsed['week9']
         ) {
           saved = null;
         } else {
@@ -1159,6 +1169,12 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
             feedback: 'Nicely done! Good submission overall, though there is still some room for improvement in refining your answer structures for better clarity.'
           }
         ]
+      },
+      'week9': {
+        submitted: false,
+        fileName: null,
+        submittedAt: null,
+        grades: []
       }
     };
     
@@ -1166,7 +1182,7 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
     return defaultSubmissions;
   });
 
-  const [selectedAssignmentId, setSelectedAssignmentId] = useState('week8');
+  const [selectedAssignmentId, setSelectedAssignmentId] = useState('week9');
   const [showPdfPreview, setShowPdfPreview] = useState(false);
   const [selectedAssignmentFile, setSelectedAssignmentFile] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
