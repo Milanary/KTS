@@ -188,9 +188,9 @@ const DEFAULT_COURSES = [
   },
   {
     id: 'chcpal001',
-    title: 'CHCPAL001: Deliver care using a palliative approach',
+    title: 'CHCPAL001: Navigating Sexual Rights and Sexual Safety in Aged Care',
     category: 'Age Care Core',
-    description: 'Understand palliative care framework standards, support families during end-of-life care, manage pain indicators, and address grief/ethical constraints.',
+    description: 'Understand sexual rights, personal autonomy, consent, and sexual safety protocols for older individuals in aged care settings.',
     lessonsCount: 5,
     lessons: [1, 2, 3, 4, 5]
   },
@@ -268,20 +268,21 @@ const COURSE_LESSON_CONTENT = {
   },
   'chcpal001': {
     1: {
-      title: 'Palliative Philosophy and Care Standards',
-      desc: 'Understand the holistic palliative care framework. Learn how to support quality of life, comfort, and human dignity for clients experiencing progressive life-limiting conditions.'
+      title: 'Navigating Sexual Rights and Sexual Safety in Aged Care',
+      desc: 'Understand sexual rights, consent, resident autonomy, and human rights frameworks in aged care settings. Learn organizational responsibilities and safety protocols.',
+      videoUrl: 'https://www.youtube.com/watch?v=OguH3qewZgc'
     },
     2: {
-      title: 'Comfort Indicators & Symptom Management',
-      desc: 'Identify physical indicators of pain, breathlessness, and distress. Learn how to assist registered nurses with administering comfort measures and apply non-pharmacological therapies.'
+      title: 'Dignity, Privacy, and Ethical Considerations',
+      desc: 'Identify key principles regarding personal privacy, ethical dilemmas, and respectful care practices when supporting residents\' intimate relationships.'
     },
     3: {
-      title: 'Addressing Emotional, Spiritual, and Cultural Grief',
-      desc: 'Explore diverse cultural and spiritual perspectives on death and dying. Develop active listening skills to support patients through fear and anxiety.'
+      title: 'Recognizing & Preventing Sexual Harassment or Assault',
+      desc: 'Learn indicators of non-consensual sexual behaviour, elder abuse risks, mandatory reporting obligations, and immediate safety escalation pathways.'
     },
     4: {
-      title: 'Supporting Families & Legacy Planning',
-      desc: 'Gain competency in supporting grieving family members. Review respite services, legacy projects (memory books), and how to communicate compassionately.'
+      title: 'Supporting Diverse Gender & Sexual Identities (LGBTIQA+)',
+      desc: 'Examine inclusive care models for older adults of diverse sexualities and gender identities, reducing stigma and promoting affirmative care.'
     },
     5: {
       title: 'Advance Care Directives & Ethical Frameworks',
@@ -489,9 +490,25 @@ const DEFAULT_ASSIGNMENTS = [
     id: 'week9',
     title: 'Assignment Week9: Infection Control Protocols & Personal Protection in Care Settings',
     dueDate: 'September 29, 2026 at 11:59 AM',
-    status: 'Pending Submission',
+    status: 'Graded',
     fileName: 'Assignment Week9.pdf',
     downloadUrl: '/Assignment Week9.pdf',
+    grades: [
+      {
+        section: 'Infection Control & PPE Protocols',
+        score: '8.5',
+        evaluator: 'Milan Aryal',
+        feedback: 'Well done! Excellent work with comprehensive analysis of infection control protocols and personal protection procedures. Very well structured response.'
+      }
+    ]
+  },
+  {
+    id: 'week10',
+    title: 'Assignment Week10: Navigating Sexual Rights and Sexual Safety in Aged Care',
+    dueDate: 'October 12, 2026 at 11:59 PM',
+    status: 'Pending Submission',
+    fileName: 'Assignment Week10.pdf',
+    downloadUrl: '/Assignment Week10.pdf',
     grades: []
   }
 ];
@@ -1051,7 +1068,11 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
           !parsed['week8']?.grades?.length ||
           parsed['week8']?.grades?.[0]?.evaluator !== 'Milan Aryal' ||
           parsed['week1']?.grades?.[0]?.evaluator !== 'Sheren Molt' ||
-          !parsed['week9']
+          !parsed['week9'] ||
+          !parsed['week9']?.submitted ||
+          !parsed['week9']?.grades?.length ||
+          parsed['week9']?.grades?.[0]?.score !== '8.5' ||
+          !parsed['week10']
         ) {
           saved = null;
         } else {
@@ -1171,6 +1192,19 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
         ]
       },
       'week9': {
+        submitted: true,
+        fileName: 'Assignment_Week9_Submission.pdf',
+        submittedAt: 'September 28, 2026 at 11:30 AM',
+        grades: [
+          {
+            section: 'Infection Control & PPE Protocols',
+            score: '8.5',
+            evaluator: 'Milan Aryal',
+            feedback: 'Well done! Excellent work with comprehensive analysis of infection control protocols and personal protection procedures. Very well structured response.'
+          }
+        ]
+      },
+      'week10': {
         submitted: false,
         fileName: null,
         submittedAt: null,
