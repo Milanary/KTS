@@ -505,7 +505,7 @@ const DEFAULT_ASSIGNMENTS = [
   {
     id: 'week10',
     title: 'Assignment Week10: Navigating Sexual Rights and Sexual Safety in Aged Care',
-    dueDate: 'October 12, 2026 at 11:59 PM',
+    dueDate: 'October 2, 2026 at 11:59 PM',
     status: 'Pending Submission',
     fileName: 'Assignment Week10.pdf',
     downloadUrl: '/Assignment Week10.pdf',
@@ -1216,7 +1216,7 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
     return defaultSubmissions;
   });
 
-  const [selectedAssignmentId, setSelectedAssignmentId] = useState('week9');
+  const [selectedAssignmentId, setSelectedAssignmentId] = useState('week10');
   const [showPdfPreview, setShowPdfPreview] = useState(false);
   const [selectedAssignmentFile, setSelectedAssignmentFile] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
