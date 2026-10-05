@@ -506,10 +506,17 @@ const DEFAULT_ASSIGNMENTS = [
     id: 'week10',
     title: 'Assignment Week10: Navigating Sexual Rights and Sexual Safety in Aged Care',
     dueDate: 'October 2, 2026 at 11:59 PM',
-    status: 'Pending Submission',
+    status: 'Graded',
     fileName: 'Assignment Week10.pdf',
     downloadUrl: '/Assignment Week10.pdf',
-    grades: []
+    grades: [
+      {
+        section: 'Sexual Rights & Safety',
+        score: '7.0',
+        evaluator: 'Sheren Molt',
+        feedback: 'Moderate submission with a clear understanding of sexual rights and safety protocols in aged care settings. Good work overall, though further detail in case studies would improve clarity.'
+      }
+    ]
   }
 ];
 
@@ -1072,7 +1079,10 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
           !parsed['week9']?.submitted ||
           !parsed['week9']?.grades?.length ||
           parsed['week9']?.grades?.[0]?.score !== '8.5' ||
-          !parsed['week10']
+          !parsed['week10'] ||
+          !parsed['week10']?.submitted ||
+          !parsed['week10']?.grades?.length ||
+          parsed['week10']?.grades?.[0]?.score !== '7.0'
         ) {
           saved = null;
         } else {
@@ -1205,10 +1215,17 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
         ]
       },
       'week10': {
-        submitted: false,
-        fileName: null,
-        submittedAt: null,
-        grades: []
+        submitted: true,
+        fileName: 'Assignment_Week10_Submission.pdf',
+        submittedAt: 'October 2, 2026 at 04:45 PM',
+        grades: [
+          {
+            section: 'Sexual Rights & Safety',
+            score: '7.0',
+            evaluator: 'Sheren Molt',
+            feedback: 'Moderate submission with a clear understanding of sexual rights and safety protocols in aged care settings. Good work overall, though further detail in case studies would improve clarity.'
+          }
+        ]
       }
     };
     
