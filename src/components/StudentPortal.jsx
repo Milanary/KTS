@@ -517,6 +517,15 @@ const DEFAULT_ASSIGNMENTS = [
         feedback: 'Moderate submission with a clear understanding of sexual rights and safety protocols in aged care settings. Good work overall, though further detail in case studies would improve clarity.'
       }
     ]
+  },
+  {
+    id: 'week11',
+    title: 'Assignment Week11: Assisting with Activities of Daily Living (ADLs) and Personal Support',
+    dueDate: 'October 7, 2026 at 11:59 PM',
+    status: 'Pending',
+    fileName: 'Assignment Week11.pdf',
+    downloadUrl: '/Assignment Week11.pdf',
+    grades: []
   }
 ];
 
@@ -1082,7 +1091,8 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
           !parsed['week10'] ||
           !parsed['week10']?.submitted ||
           !parsed['week10']?.grades?.length ||
-          parsed['week10']?.grades?.[0]?.score !== '7.0'
+          parsed['week10']?.grades?.[0]?.score !== '7.0' ||
+          !parsed['week11']
         ) {
           saved = null;
         } else {
@@ -1226,6 +1236,12 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
             feedback: 'Moderate submission with a clear understanding of sexual rights and safety protocols in aged care settings. Good work overall, though further detail in case studies would improve clarity.'
           }
         ]
+      },
+      'week11': {
+        submitted: false,
+        fileName: '',
+        submittedAt: '',
+        grades: []
       }
     };
     
@@ -1233,7 +1249,7 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
     return defaultSubmissions;
   });
 
-  const [selectedAssignmentId, setSelectedAssignmentId] = useState('week10');
+  const [selectedAssignmentId, setSelectedAssignmentId] = useState('week11');
   const [showPdfPreview, setShowPdfPreview] = useState(false);
   const [selectedAssignmentFile, setSelectedAssignmentFile] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
