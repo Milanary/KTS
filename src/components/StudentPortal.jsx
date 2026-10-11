@@ -522,10 +522,17 @@ const DEFAULT_ASSIGNMENTS = [
     id: 'week11',
     title: 'Assignment Week11: Assisting with Activities of Daily Living (ADLs) and Personal Support',
     dueDate: 'October 7, 2026 at 11:59 PM',
-    status: 'Pending',
+    status: 'Graded',
     fileName: 'Assignment Week11.pdf',
     downloadUrl: '/Assignment Week11.pdf',
-    grades: []
+    grades: [
+      {
+        section: 'ADLs & Personal Support',
+        score: '8.0',
+        evaluator: 'Milan Aryal',
+        feedback: 'Well done! Good understanding of ADL support and care procedures. Keep up the good work.'
+      }
+    ]
   }
 ];
 
@@ -1092,7 +1099,11 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
           !parsed['week10']?.submitted ||
           !parsed['week10']?.grades?.length ||
           parsed['week10']?.grades?.[0]?.score !== '7.0' ||
-          !parsed['week11']
+          !parsed['week11'] ||
+          !parsed['week11']?.submitted ||
+          !parsed['week11']?.grades?.length ||
+          parsed['week11']?.grades?.[0]?.score !== '8.0' ||
+          parsed['week11']?.grades?.[0]?.feedback?.includes('stroke dressing')
         ) {
           saved = null;
         } else {
@@ -1238,10 +1249,17 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
         ]
       },
       'week11': {
-        submitted: false,
-        fileName: '',
-        submittedAt: '',
-        grades: []
+        submitted: true,
+        fileName: 'Assignment_Week11_Submission.pdf',
+        submittedAt: 'October 7, 2026 at 04:15 PM',
+        grades: [
+          {
+            section: 'ADLs & Personal Support',
+            score: '8.0',
+            evaluator: 'Milan Aryal',
+            feedback: 'Well done! Good understanding of ADL support and care procedures. Keep up the good work.'
+          }
+        ]
       }
     };
     
