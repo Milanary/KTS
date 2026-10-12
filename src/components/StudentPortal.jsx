@@ -533,6 +533,15 @@ const DEFAULT_ASSIGNMENTS = [
         feedback: 'Well done! Good understanding of ADL support and care procedures. Keep up the good work.'
       }
     ]
+  },
+  {
+    id: 'week12',
+    title: 'Assignment Week12: Dignity, Privacy, and Ethical Considerations in Care Settings',
+    dueDate: 'October 13, 2026 at 11:59 PM',
+    status: 'Pending',
+    fileName: 'Assignment Week12.pdf',
+    downloadUrl: '/Assignment Week12.pdf',
+    grades: []
   }
 ];
 
@@ -1103,7 +1112,8 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
           !parsed['week11']?.submitted ||
           !parsed['week11']?.grades?.length ||
           parsed['week11']?.grades?.[0]?.score !== '8.0' ||
-          parsed['week11']?.grades?.[0]?.feedback?.includes('stroke dressing')
+          parsed['week11']?.grades?.[0]?.feedback?.includes('stroke dressing') ||
+          !parsed['week12']
         ) {
           saved = null;
         } else {
@@ -1260,6 +1270,12 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
             feedback: 'Well done! Good understanding of ADL support and care procedures. Keep up the good work.'
           }
         ]
+      },
+      'week12': {
+        submitted: false,
+        fileName: '',
+        submittedAt: '',
+        grades: []
       }
     };
     
@@ -1267,7 +1283,7 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
     return defaultSubmissions;
   });
 
-  const [selectedAssignmentId, setSelectedAssignmentId] = useState('week11');
+  const [selectedAssignmentId, setSelectedAssignmentId] = useState('week12');
   const [showPdfPreview, setShowPdfPreview] = useState(false);
   const [selectedAssignmentFile, setSelectedAssignmentFile] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
