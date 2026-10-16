@@ -538,10 +538,17 @@ const DEFAULT_ASSIGNMENTS = [
     id: 'week12',
     title: 'Assignment Week12: Dignity, Privacy, and Ethical Considerations in Care Settings',
     dueDate: 'October 13, 2026 at 11:59 PM',
-    status: 'Pending',
+    status: 'Graded',
     fileName: 'Assignment Week12.pdf',
     downloadUrl: '/Assignment Week12.pdf',
-    grades: []
+    grades: [
+      {
+        section: 'Dignity, Privacy & Ethical Considerations',
+        score: '6.0',
+        evaluator: 'Sheren Molt',
+        feedback: 'The submission demonstrates a solid understanding of dignity, privacy, and ethical frameworks in care settings, and your key points are well-addressed. However, our automated review flagged an AI detection rate of 13%. While utilizing AI for reference can be helpful, kindly ensure you do not rely solely on AI to formulate your results, as authentic personal reasoning and practical reflection are essential. Please take this as guidance moving forward—continued reliance on AI-generated content in future submissions may lead to unsatisfactory or failing results. Keep cultivating your independent analysis!'
+      }
+    ]
   }
 ];
 
@@ -1113,7 +1120,10 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
           !parsed['week11']?.grades?.length ||
           parsed['week11']?.grades?.[0]?.score !== '8.0' ||
           parsed['week11']?.grades?.[0]?.feedback?.includes('stroke dressing') ||
-          !parsed['week12']
+          !parsed['week12'] ||
+          !parsed['week12']?.submitted ||
+          !parsed['week12']?.grades?.length ||
+          parsed['week12']?.grades?.[0]?.score !== '6.0'
         ) {
           saved = null;
         } else {
@@ -1272,10 +1282,17 @@ export default function StudentPortal({ onLogout, theme, toggleTheme }) {
         ]
       },
       'week12': {
-        submitted: false,
-        fileName: '',
-        submittedAt: '',
-        grades: []
+        submitted: true,
+        fileName: 'Assignment_Week12_Submission.pdf',
+        submittedAt: 'October 13, 2026 at 03:45 PM',
+        grades: [
+          {
+            section: 'Dignity, Privacy & Ethical Considerations',
+            score: '6.0',
+            evaluator: 'Sheren Molt',
+            feedback: 'The submission demonstrates a solid understanding of dignity, privacy, and ethical frameworks in care settings, and your key points are well-addressed. However, our automated review flagged an AI detection rate of 13%. While utilizing AI for reference can be helpful, kindly ensure you do not rely solely on AI to formulate your results, as authentic personal reasoning and practical reflection are essential. Please take this as guidance moving forward—continued reliance on AI-generated content in future submissions may lead to unsatisfactory or failing results. Keep cultivating your independent analysis!'
+          }
+        ]
       }
     };
     
